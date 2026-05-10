@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Çizim Mizim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #2b2b45; --panel-bg: #3d3d63; --btn-yellow: #FFC107; --btn-blue: #00A8FF; --btn-green: #4CD137; --btn-gray: #7f8fa6; --text-color: #ffffff; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; font-family: 'Baloo 2', cursive; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(#3d3d63 15%, transparent 15%); background-size: 30px 30px; color: var(--text-color); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .container { background: var(--panel-bg); padding: 25px; border-radius: 25px; border: 4px solid #1e1e30; box-shadow: 0 10px 0 #1e1e30; width: 92%; max-width: 420px; text-align: center; position: relative; max-height: 95vh; overflow-y: auto; }
+        #lobbyContainer, #gameContainer { max-width: 900px; background: #474775; display: none; }
+        
+        .logo { font-size: clamp(28px, 6vw, 40px); font-weight: 800; color: var(--btn-yellow); text-shadow: 3px 3px 0 #1e1e30, -1px -1px 0 #1e1e30, 1px -1px 0 #1e1e30, -1px 1px 0 #1e1e30, 1px 1px 0 #1e1e30; margin-bottom: 20px; transform: rotate(-3deg); line-height: 1.1; }
+
+        .avatar-wrapper { position: relative; width: 90px; height: 90px; margin: 0 auto 18px; }
+        .avatar-circle { width: 100%; height: 100%; background: #1e1e30; border-radius: 22px; display: flex; justify-content: center; align-items: center; border: 4px solid #1e1e30; box-shadow: 0 6px 0 #1e1e30; overflow: hidden; }
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .edit-icon { position: absolute; bottom: -8px; right: -8px; width: 34px; height: 34px; background: var(--btn-yellow); border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 3px solid #1e1e30; box-shadow: 0 4px 0 #1e1e30; color: #1e1e30; transition: 0.1s; }
+        .edit-icon:active { transform: translateY(3px); box-shadow: 0 0 0 #1e1e30; }
+
+        input, textarea, select { width: 100%; padding: 12px; background: white; border: 4px solid #1e1e30; color: #1e1e30; border-radius: 15px; font-size: clamp(16px, 4vw, 20px); font-weight: 800; text-align: center; outline: none; margin-bottom: 12px; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); }
+        
+        .btn { width: 100%; padding: 12px; margin-bottom: 12px; border: 4px solid #1e1e30; border-radius: 15px; font-size: clamp(16px, 4vw, 22px); font-weight: 800; color: white; cursor: pointer; text-transform: uppercase; transition: 0.1s; min-height: 48px; }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0 0 #1e1e30 !important; }
+        .btn-play { background: var(--btn-green); box-shadow: 0 6px 0 #3b9c2a, 0 6px 0 4px #1e1e30; }
+        .btn-play:disabled { background: var(--btn-gray) !important; box-shadow: 0 6px 0 #5c6777, 0 6px 0 4px #1e1e30 !important; cursor: not-allowed !important; color: white !important; }
+        .btn-create { background: var(--btn-blue); box-shadow: 0 6px 0 #007bb5, 0 6px 0 4px #1e1e30; }
+        .btn-join { background: var(--btn-yellow); color: #1e1e30; box-shadow: 0 6px 0 #cc9a06, 0 6px 0 4px #1e1e30; }
+        .btn-how { background: var(--btn-gray); box-shadow: 0 6px 0 #5c6777, 0 6px 0 4px #1e1e30; font-size: clamp(14px, 3.5vw, 18px); padding: 10px; margin-top: 5px; }
+        .btn-danger { background: #FF5E57; color: white; box-shadow: 0 6px 0 #c0392b, 0 6px 0 4px #1e1e30; }
+
+        .room-header { display: flex; justify-content: space-between; align-items: center; background: white; color: #1e1e30; padding: 6px 14px; border-radius: 15px; border: 4px solid #1e1e30; margin-bottom: 12px; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); flex-wrap: wrap; gap: 8px; }
+        .room-code-text { font-size: clamp(18px, 4vw, 24px); font-weight: 800; letter-spacing: 2px; margin: 0; }
+        .btn-invite { background: var(--btn-blue); color: white; border: 3px solid #1e1e30; border-radius: 10px; padding: 6px 14px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #1e1e30; transition: 0.1s; font-size: clamp(13px, 3vw, 16px); white-space: nowrap; }
+        .btn-invite:active { transform: translateY(3px); box-shadow: 0 1px 0 #1e1e30; }
+
+        .lobby-content { display: flex; flex-direction: column; gap: 15px; }
+        .lobby-left { flex: 1.3; display: flex; flex-direction: column; gap: 15px; }
+        .lobby-right { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        
+        .players-list { background: #3d3d63; border: 4px solid #1e1e30; border-radius: 15px; padding: 10px; display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 200px; overflow-y: auto; box-shadow: inset 0 4px 0 rgba(0,0,0,0.2); }
+        .player-card { background: #2b2b45; border: 3px solid #1e1e30; border-radius: 12px; padding: 8px; display: flex; align-items: center; gap: 10px; position: relative; }
+        .player-card .avatar-host-wrap { position: relative; width: 40px; height: 40px; flex-shrink: 0; }
+        .player-card .avatar-host-wrap img { width: 100%; height: 100%; border-radius: 10px; border: 2px solid #1e1e30; object-fit: cover; }
+        .player-card .avatar-host-wrap .crown-badge { position: absolute; top: -8px; left: -8px; width: 22px; height: 22px; background: var(--btn-yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #1e1e30; z-index: 2; }
+        .player-card span { font-size: clamp(15px, 3.5vw, 18px); font-weight: 800; color: white; }
+
+        /* YENİ CHAT TASARIMI (Köşeler Yuvarlatıldı) */
+        .chat-box { background: #2f3542; border: 4px solid #1e1e30; border-radius: 15px; display: flex; flex-direction: column; height: 180px; overflow: hidden; box-shadow: inset 0 4px 0 rgba(0,0,0,0.3); }
+        .chat-messages { flex: 1; padding: 10px; overflow-y: auto; text-align: left; font-size: clamp(13px, 3vw, 16px); font-weight: 800; line-height: 1.3; }
+        .chat-input-area { display: flex; gap: 8px; padding: 8px; background: #2b2b45; border-top: 4px solid #1e1e30; }
+        .chat-input-area input { flex: 1; margin: 0; border: 3px solid #1e1e30; border-radius: 10px; padding: 6px 12px; font-size: 15px; text-align: left; box-shadow: none; height: 40px; }
+        .chat-input-area button { background: var(--btn-blue); color: white; border: 3px solid #1e1e30; border-radius: 10px; font-weight: 800; font-size: 14px; padding: 0 15px; cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #007bb5; height: 40px; margin: 0; width: auto; }
+        .chat-input-area button:active { transform: translateY(3px); box-shadow: 0 1px 0 #007bb5; }
+
+        /* YENİ AYARLAR MENÜSÜ */
+        .lobby-settings-panel { background: #2b2b45; border: 4px solid #1e1e30; border-radius: 15px; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .settings-header { font-weight: 800; color: var(--btn-yellow); font-size: clamp(16px, 4vw, 20px); text-shadow: 2px 2px 0 #1e1e30; margin-bottom: 5px; }
+        
+        .game-modes-panel { display: flex; gap: 10px; }
+        .mode-card { flex: 1; border-radius: 12px; padding: 10px; text-align: center; border: 3px solid #1e1e30; transition: 0.1s; }
+        .mode-card.active { background: #1e1e30; border-color: var(--btn-yellow); box-shadow: 0 4px 0 var(--btn-yellow); }
+        .mode-card.locked { background: #2f3542; opacity: 0.6; cursor: not-allowed; }
+        
+        .settings-grid { display: grid; gap: 10px; font-size: clamp(14px, 3.5vw, 16px); font-weight: 800; color: white; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; background: #3d3d63; padding: 8px 12px; border-radius: 12px; border: 3px solid #1e1e30; }
+        .setting-select { 
+            background: #f1f2f6; border: 3px solid #1e1e30; border-radius: 8px; padding: 4px 10px; 
+            font-size: 14px; font-weight: 800; color: #1e1e30; width: 140px; margin: 0; cursor: pointer;
+            appearance: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e1e30' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 8px center; background-size: 16px;
+        }
+        .setting-select:disabled { background: #a4b0be; cursor: not-allowed; opacity: 0.8; }
+
+        .game-header { display: flex; justify-content: space-between; align-items: center; background: white; border: 4px solid #1e1e30; border-radius: 15px; padding: 8px 16px; margin-bottom: 12px; box-shadow: 0 4px 0 #1e1e30; flex-wrap: wrap; gap: 8px; }
+        .task-text { font-size: clamp(16px, 4vw, 22px); font-weight: 800; color: #1e1e30; margin: 0; flex: 1; text-align: left; line-height: 1.2; }
+        .word-highlight { color: var(--btn-yellow); text-shadow: 2px 2px 0 #1e1e30; font-size: clamp(18px, 4.5vw, 26px); }
+        .timer-wrap { display: flex; align-items: center; gap: 6px; }
+        .timer-box { background: #FF5E57; color: white; font-size: clamp(20px, 5vw, 28px); font-weight: 800; padding: 4px 12px; border-radius: 10px; border: 3px solid #1e1e30; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2); text-align: center; min-width: 50px; }
+        .ready-badge { background: var(--btn-yellow); color: #1e1e30; font-size: clamp(11px, 2.5vw, 13px); font-weight: 800; padding: 4px 8px; border-radius: 8px; border: 3px solid #1e1e30; white-space: nowrap; }
+        
+        .main-canvas-wrapper, .write-phase-wrapper { display: flex; flex-direction: column; gap: 8px; flex: 1; position: relative; }
+        .write-phase-wrapper textarea { width: 100%; height: clamp(160px, 30vh, 250px); background: white; border: 4px solid #1e1e30; border-radius: 15px; font-size: clamp(20px, 5vw, 32px); font-weight: 800; text-align: center; padding: 16px; resize: none; color: #1e1e30; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); }
+        
+        .canvas-dimmer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 30, 48, 0.85); border-radius: 15px; display: none; justify-content: center; align-items: center; z-index: 5; color: var(--btn-yellow); font-size: clamp(20px, 5vw, 28px); font-weight: 800; text-shadow: 2px 2px 0 #1e1e30; backdrop-filter: blur(2px); flex-direction: column; gap: 10px; }
+        .canvas-dimmer.active { display: flex; }
+
+        #gameCanvas { background: white; border: 4px solid #1e1e30; border-radius: 15px; cursor: crosshair; touch-action: none; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); width: 100%; position: relative; z-index: 1; height: clamp(220px, 40vh, 400px); }
+
+        .tools-panel { background: #2b2b45; border: 4px solid #1e1e30; border-radius: 15px; padding: 8px; display: flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .tool-btn { background: white; border: 3px solid #1e1e30; border-radius: 12px; width: clamp(40px, 9vw, 50px); height: clamp(40px, 9vw, 50px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; color: #1e1e30; }
+        .tool-btn svg { width: clamp(22px, 5vw, 28px); height: clamp(22px, 5vw, 28px); pointer-events: none; }
+        .tool-btn.active { background: var(--btn-yellow); transform: scale(1.1); box-shadow: 0 4px 0 #1e1e30; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: clamp(40px, 9vw, 50px); height: clamp(40px, 9vw, 50px); cursor: pointer; padding: 0; background: transparent; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 3px solid #1e1e30; border-radius: 12px; }
+        
+        .slider-group { display: flex; flex-direction: column; gap: 4px; flex: 1; padding: 0 8px; min-width: 120px; }
+        .slider-row { display: flex; align-items: center; gap: 8px; font-size: clamp(11px, 2.5vw, 14px); font-weight: 800; color: var(--btn-yellow); text-shadow: 1px 1px 0 #1e1e30; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: #1e1e30; height: 8px; border-radius: 4px; outline: none; padding: 0; box-shadow: none; margin: 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--btn-yellow); border: 3px solid #1e1e30; border-radius: 50%; cursor: pointer; }
+
+        .btn-finish-early { background: var(--btn-green); color: white; border: 4px solid #1e1e30; border-radius: 15px; padding: 10px 16px; font-weight: 800; font-size: clamp(14px, 3.5vw, 20px); cursor: pointer; box-shadow: 0 6px 0 #3b9c2a, 0 6px 0 4px #1e1e30; transition: 0.1s; text-transform: uppercase; flex: 1; margin-left: 8px; }
+        .btn-finish-early.ready { background: var(--btn-yellow); color: #1e1e30; box-shadow: 0 6px 0 #cc9a06, 0 6px 0 4px #1e1e30; }
+
+        #countdownOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(30, 30, 48, 0.95); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; flex-direction: column; }
+        #countdownOverlay.active { opacity: 1; pointer-events: all; }
+        #countdownNumber { font-size: clamp(80px, 20vw, 150px); font-weight: 800; color: var(--btn-yellow); text-shadow: 8px 8px 0 #1e1e30; transform: scale(0.5); transition: transform 0.2s; text-align: center; }
+        #countdownNumber.pop { transform: scale(1.2); }
+
+        .modal-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,30,48,0.9); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; z-index: 10; padding: 15px; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box { background: var(--panel-bg); border: 4px solid #1e1e30; border-radius: 20px; padding: 20px; width: 100%; max-width: 340px; text-align: center; position: relative; }
+        .close-btn { position: absolute; top: -15px; right: -15px; background: #FF5E57; border: 3px solid #1e1e30; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .avatar-item { border-radius: 15px; height: clamp(60px, 15vw, 75px); cursor: pointer; border: 3px solid #1e1e30; background: #1e1e30; overflow: hidden; }
+        .avatar-item img { width: 100%; height: 100%; object-fit: cover; }
+        .toggle-group { display: flex; justify-content: space-between; align-items: center; background: white; color: #1e1e30; padding: 10px; border-radius: 12px; border: 3px solid #1e1e30; font-weight: 800; font-size: clamp(14px, 3.5vw, 18px); margin-bottom: 12px; }
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--btn-blue); cursor: pointer; }
+
+        .pwd-wrap { position: relative; width: 100%; margin-bottom: 12px; }
+        .pwd-wrap input { margin-bottom: 0; padding-right: 40px; }
+        .pwd-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+
+        #resultViewer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 50; max-width: none; border-radius: 0; border: none; overflow-y: auto; padding: clamp(15px, 4vw, 40px); justify-content: center; align-items: center; }
+        .result-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; gap: 20px; animation: fadeInUp 0.5s ease; width: 100%; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .result-chain-label { font-size: clamp(18px, 4vw, 26px); color: var(--btn-yellow); font-weight: 800; text-shadow: 2px 2px 0 #1e1e30; background: #2b2b45; padding: 8px 24px; border-radius: 50px; border: 3px solid #1e1e30; text-align: center; }
+        .result-big-text { font-size: clamp(32px, 8vw, 64px); font-weight: 800; color: white; word-break: break-word; line-height: 1.2; text-align: center; max-width: 800px; padding: 30px; background: #2b2b45; border-radius: 25px; border: 4px solid #1e1e30; box-shadow: 0 8px 0 #1e1e30; animation: popIn 0.4s ease; }
+        .result-big-img { max-width: 95%; max-height: 55vh; border-radius: 20px; border: 5px solid #1e1e30; background: white; object-fit: contain; box-shadow: 0 8px 0 #1e1e30; animation: popIn 0.4s ease; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .result-step-badge { font-size: clamp(14px, 3vw, 18px); color: #aaa; font-weight: 700; background: #2b2b45; padding: 6px 18px; border-radius: 50px; border: 3px solid #1e1e30; margin-top: 20px; }
+        .result-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 60; }
+        .result-controls .btn { margin: 0; white-space: nowrap; font-size: clamp(14px, 3.5vw, 18px); padding: 10px 24px; width: auto; }
+        .progress-track { width: 60%; max-width: 500px; height: 14px; background: #1e1e30; border-radius: 10px; overflow: hidden; border: 3px solid #1e1e30; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--btn-green); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); border-radius: 6px; }
+
+        .chain-card:active { transform: scale(0.95); }
+        @media (hover: hover) { .chain-card:hover { transform: translateY(-5px); border-color: var(--btn-blue) !important; } }
+        .chain-view-container::-webkit-scrollbar { width: 8px; }
+        .chain-view-container::-webkit-scrollbar-thumb { background: var(--btn-yellow); border-radius: 4px; }
+
+        .room-row { background: #2b2b45; border: 3px solid #1e1e30; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.1s; }
+        .room-row:hover { transform: translateY(-2px); }
+        .room-row .room-info { text-align: left; }
+        .room-row .room-code { font-size: clamp(15px, 3.5vw, 18px); font-weight: 800; color: white; }
+        .room-row .room-meta { font-size: clamp(12px, 3vw, 14px); color: #aaa; font-weight: 600; }
+
+        #musicToggle { position: fixed; bottom: 15px; right: 15px; z-index: 200; width: 50px; height: 50px; border-radius: 50%; background: var(--btn-blue); border: 4px solid #1e1e30; color: white; font-size: 22px; cursor: pointer; box-shadow: 0 6px 0 #1e1e30; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
+        #musicToggle:active { transform: translateY(6px); box-shadow: 0 0 0 #1e1e30; }
+        #musicToggle.muted { background: var(--btn-gray); }
+
+        @media (min-width: 768px) {
+            #lobbyContainer, #gameContainer { padding: 35px; }
+            .lobby-content { flex-direction: row; }
+            .players-list { grid-template-columns: repeat(2, 1fr); max-height: 250px; }
+            .chat-box { height: 210px; }
+        }
+        @media (max-width: 767px) {
+            .container { padding: 18px; border-radius: 20px; }
+            .players-list { max-height: 160px; grid-template-columns: 1fr 1fr; }
+            .chat-box { height: 160px; }
+            .tools-panel { gap: 4px; padding: 6px; }
+            .slider-group { min-width: 100px; padding: 0 4px; }
+            .result-controls { width: 90%; flex-direction: column; }
+            .result-controls .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <svg style="display: none;">
+        <symbol id="icon-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </symbol>
+        <symbol id="icon-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 20H7l-5.5-5.5a2.828 2.828 0 0 1 0-4L13.5 2l7.1 7.1a2.828 2.828 0 0 1 0 4L20 20z"></path><path d="M15 4l5 5"></path>
+        </symbol>
+        <symbol id="icon-fill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 11l-7-7-9 9a2.12 2.12 0 0 0 0 3l2 2a2.12 2.12 0 0 0 3 0l9-9z"></path><path d="M12 3v6"></path><path d="M21 15a2 2 0 0 1-4 0c0-1.5 2-3 2-3s2 1.5 2 3z"></path>
+        </symbol>
+        <symbol id="icon-square" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+        </symbol>
+        <symbol id="icon-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+        </symbol>
+        <symbol id="icon-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="5" x2="19" y2="19"></line>
+        </symbol>
+        <symbol id="icon-undo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+        </symbol>
+        <symbol id="icon-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 4.7"></path>
+        </symbol>
+        <symbol id="icon-crown" viewBox="0 0 24 24" fill="gold" stroke="#1e1e30" stroke-width="1.5" stroke-linejoin="round">
+            <path d="M2 22h20V20H2zM2 18l4-10 4 6 2-10 2 10 4-6 4 10z"></path>
+        </symbol>
+    </svg>
+
+    <div class="container" id="menuContainer">
+        <div class="logo">ÇİZİM MİZİM</div>
+        <div class="avatar-wrapper">
+            <div class="avatar-circle"><img id="mainAvatar" src="profiles/1.png"></div>
+            <div class="edit-icon" id="openAvatarModalIcon"><svg width="18" height="18"><use href="#icon-pen"></use></svg></div>
+        </div>
+        <input type="text" id="usernameInput" placeholder="İsmini Yaz" maxlength="12">
+        <button class="btn btn-play" id="btnRandom">OYNA</button>
+        <button class="btn btn-create" id="btnOpenCreate">KUR</button>
+        <button class="btn btn-join" id="btnOpenJoin">KATIL</button>
+        <button class="btn btn-how" id="btnOpenHow">NASIL OYNANIR?</button> 
+    </div>
+
+    <div class="container" id="lobbyContainer">
+        <div class="logo">BEKLEME SALONU</div>
+        <div class="room-header">
+            <span class="room-code-text" id="lobbyCodeText">KOD: YÜKLENİYOR</span>
+            <button class="btn-invite" id="btnOpenInvite">DAVET ET 💌</button>
+        </div>
+        
+        <div class="lobby-content">
+            <div class="lobby-left">
+                <div class="players-list" id="playersContainer"></div>
+                <div class="chat-box">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Sohbete katıl..." maxlength="40">
+                        <button id="btnSendChat">YAZ</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lobby-right">
+                <div class="lobby-settings-panel">
+                    <div class="settings-header">OYUN MODU</div>
+                    <div class="game-modes-panel">
+                        <div class="mode-card active">
+                            <div style="font-weight: 800; color: var(--btn-yellow); font-size: 16px;">YazÇiz 🎨</div>
+                        </div>
+                        <div class="mode-card locked" title="Çok Yakında!">
+                            <div style="font-weight: 800; color: #aaa; font-size: 16px;">Memesel 🔒</div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-header" style="margin-top: 5px;">ODA AYARLARI</div>
+                    <div class="settings-grid">
+                        <div class="setting-row">
+                            <span>Başlangıç 🎲</span>
+                            <select id="setStartMode" class="setting-select">
+                                <option value="text">Yazıyla Yaz</option>
+                                <option value="draw">Çizimle Çiz</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <span>Tur Sayısı 🔄</span>
+                            <select id="setTurns" class="setting-select">
+                                <option value="auto">Kişi Kadar</option>
+                                <option value="2">2 Tur</option><option value="3">3 Tur</option><option value="4">4 Tur</option><option value="5">5 Tur</option><option value="6">6 Tur</option><option value="7">7 Tur</option><option value="8">8 Tur</option><option value="9">9 Tur</option><option value="10">10 Tur</option><option value="11">11 Tur</option><option value="12">12 Tur</option><option value="13">13 Tur</option><option value="14">14 Tur</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <span>Zaman ⏱️</span>
+                            <select id="setTime" class="setting-select">
+                                <option value="infinite">Süresiz</option>
+                                <option value="slow">Yavaş</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="fast">Hızlı</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="btn btn-danger" id="btnLeaveRoom" style="flex: 1; margin: 0; padding: 10px; font-size: 16px;">ÇIK</button>
+            <button class="btn btn-gray" id="btnStartGame" disabled style="flex: 3; margin: 0;">EN AZ 2 OYUNCU LAZIM</button>
+        </div>
+    </div>
+
+    <div class="container" id="gameContainer">
+        <div class="game-header">
+            <p class="task-text" id="taskTextTitle">GÖREV YÜKLENİYOR...</p>
+            <div class="timer-wrap">
+                <div class="ready-badge" id="readyCounter">0/14 HAZIR</div>
+                <div class="timer-box" id="gameTimer">30</div>
+            </div>
+        </div>
+
+        <div class="write-phase-wrapper" id="writePhaseWrapper">
+            <div id="writeDimmer" class="canvas-dimmer">
+                <span>HAZIR! BEKLENİYOR...</span>
+                <span id="dimmerReadyCount" style="font-size:18px; color:white;"></span>
+            </div>
+            <img id="guessImage" style="max-width: 100%; max-height: clamp(140px, 25vh, 200px); border-radius: 15px; border: 4px solid #1e1e30; display: none; margin: 0 auto 8px; background: white; object-fit: contain;">
+            <textarea id="scenarioInput" placeholder="Aklına gelen en uçuk, en komik cümleyi yaz..."></textarea>
+        </div>
+
+        <div class="main-canvas-wrapper" id="drawPhaseWrapper" style="display: none;">
+            <div id="gameCanvasDimmer" class="canvas-dimmer">
+                <span>HAZIR! BEKLENİYOR...</span>
+                <span id="dimmerReadyCountDraw" style="font-size:18px; color:white;"></span>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div class="tools-panel" id="gameTools"></div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+            <button class="btn-invite" id="btnClearGame" style="margin:0; background: #FF5E57; display: none; font-size:16px; padding:8px 14px;">TÜMÜNÜ SİL</button>
+            <button class="btn-finish-early" id="btnFinishEarly" style="margin-left: 0;">BİTİR (HAZIR)</button>
+        </div>
+    </div>
+
+    <div id="resultViewer">
+        <div class="result-stage" id="resultSettings" style="display: none; min-height: auto;">
+            <div class="logo" style="font-size: clamp(32px, 8vw, 48px); margin-bottom: 30px;">ALBÜM AYARLARI</div>
+            <div class="toggle-group" style="width: 100%; max-width: 320px;"><span>Manuel Geçiş</span><input type="checkbox" id="resManualToggle" checked></div>
+            <div class="toggle-group" style="width: 100%; max-width: 320px;"><span>Sesli Okuma (TTS)</span><input type="checkbox" id="resVoiceToggle"></div>
+            <button class="btn btn-play" id="btnStartAlbum" style="max-width: 320px; margin-top: 20px;">ALBÜMÜ BAŞLAT</button>
+        </div>
+        
+        <div class="result-stage" id="resultWaiting" style="display: none; min-height: auto;">
+            <div class="logo" style="font-size: clamp(32px, 8vw, 48px); margin-bottom: 20px;">ALBÜMLER HAZIR!</div>
+            <p style="font-size: clamp(16px, 4vw, 22px); font-weight: 800; color: white;">Kurucu sonuç ayarlarını yapıyor...</p>
+        </div>
+
+        <div class="result-stage" id="resultStage" style="display: none;">
+            <div class="result-chain-label" id="resultChainLabel"></div>
+            <div id="resultContent"></div>
+            <div class="result-step-badge" id="resultStepBadge"></div>
+            <div class="progress-track"><div class="progress-fill" id="resultProgressFill" style="width:0%"></div></div>
+        </div>
+        
+        <div class="result-controls" id="resultControls" style="display: none;"></div>
+    </div>
+
+    <div id="countdownOverlay"><div id="countdownNumber">5</div></div>
+
+    <div class="modal-overlay" id="inviteModal"><div class="modal-box"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title" style="margin-bottom: 10px;">Arkadaşlarını Çağır</div><p style="font-size: 15px; margin-bottom: 18px; font-weight: 600; color: white;">Direkt linki kopyalayıp atarsan, tıkladıkları an odaya bağlanırlar!</p><button class="btn btn-create" id="btnCopyCode" style="font-size: 16px; padding: 10px;">KODU KOPYALA</button><button class="btn btn-join" id="btnCopyLink" style="font-size: 16px; padding: 10px;">LİNKİ KOPYALA</button></div></div>
+    <div class="modal-overlay" id="avatarModal"><div class="modal-box"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title">Tipini Seç</div><div class="avatar-grid" id="avatarGrid"></div></div></div>
+    <div class="modal-overlay" id="createModal"><div class="modal-box"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title">Oda Kur</div><div class="toggle-group"><span>Halka Açık Lobi</span><input type="checkbox" id="publicToggle" checked></div><div class="pwd-wrap"><input type="password" id="lobbyPassword" placeholder="Şifre Gerekmez" disabled maxlength="8"><button class="pwd-toggle" id="toggleCreatePwd">👁️</button></div><button class="btn btn-play" id="btnActualCreate" style="margin-bottom: 0;">LOBİYİ AÇ</button></div></div>
+    <div class="modal-overlay" id="joinModal"><div class="modal-box"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title">Odaya Dal</div><input type="text" id="joinCodeInput" placeholder="KOD (Örn: X7B9K2)" maxlength="6"><div class="pwd-wrap"><input type="password" id="joinPasswordInput" placeholder="Şifre (Varsa)"><button class="pwd-toggle" id="toggleJoinPwd">👁️</button></div><button class="btn btn-create" id="btnActualJoin" style="margin-bottom: 0;">GİRİŞ YAP</button><button class="btn btn-how" id="btnBrowseInJoin" style="margin-bottom: 0; margin-top: 10px;">ODALARI İNCELE</button></div></div>
+    <div class="modal-overlay" id="howModal"><div class="modal-box"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title">Nasıl Oynanır?</div><div style="font-size: clamp(14px, 3.5vw, 18px); color: white; text-align: left; line-height: 1.5; font-weight: 600;"><b>1.</b> Ekrana bir cümle yazıp yandakine pasla.<br><br><b>2.</b> Sana gelen cümleyi çizmeye çalış.<br><br><b>3.</b> Çizimler karıştıkça gülmekten kopun!</div></div></div>
+    <div class="modal-overlay" id="browseModal"><div class="modal-box" style="max-width: 400px;"><button class="close-btn" onclick="closeModals()">X</button><div class="modal-title">Açık Lobiler</div><div id="roomsList" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;"></div></div></div>
+
+    <button id="musicToggle">🎵</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // ===== SES SİSTEMİ =====
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, vol=0.25) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+        function playBeep(high=false) { playTone(high?880:520, 'sine', 0.15, 0.35); }
+        function playPop() { playTone(600, 'triangle', 0.08, 0.2); }
+        function playSuccess() { 
+            playTone(523, 'sine', 0.1, 0.3); 
+            setTimeout(()=>playTone(659, 'sine', 0.1, 0.3), 100); 
+            setTimeout(()=>playTone(784, 'sine', 0.25, 0.3), 200); 
+        }
+        function playTick() { playTone(320, 'square', 0.05, 0.1); }
+        function playWhoosh() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine'; osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.35);
+        }
+        function playError() { playTone(200, 'sawtooth', 0.3, 0.2); }
+        function playPageTurn() { playTone(400, 'triangle', 0.1, 0.15); setTimeout(()=>playTone(300, 'triangle', 0.15, 0.1), 80); }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'tr-TR'; utter.rate = 0.9; utter.pitch = 1.1;
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        let musicPlaying = false;
+        let bgMusic;
+        try {
+            bgMusic = new Audio('music.mp3');
+            bgMusic.loop = true; 
+            bgMusic.volume = 0.15;
+        } catch(e) { console.log('Müzik yüklenemedi'); }
+        
+        const musicBtn = document.getElementById('musicToggle');
+        musicBtn.onclick = () => {
+            if (!bgMusic) return;
+            if (musicPlaying) { bgMusic.pause(); musicBtn.textContent = '🔇'; musicBtn.classList.add('muted'); }
+            else { bgMusic.play().catch(()=>{}); musicBtn.textContent = '🎵'; musicBtn.classList.remove('muted'); }
+            musicPlaying = !musicPlaying;
+        };
+        function tryStartMusic() {
+            if (bgMusic && musicPlaying && bgMusic.paused) bgMusic.play().catch(()=>{});
+        }
+        document.body.addEventListener('click', tryStartMusic, { once: true });
+        document.body.addEventListener('touchstart', tryStartMusic, { once: true });
+
+        // ===== UI BAŞLANGIÇ =====
+        document.getElementById('usernameInput').addEventListener('input', function() { this.value = this.value.replace(/[^a-zA-Z0-9ğüşıöçĞÜŞİÖÇ ]/g, ''); });
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        document.getElementById('openAvatarModalIcon').onclick = () => { playPop(); document.getElementById('avatarModal').classList.add('active'); };
+        document.getElementById('btnOpenCreate').onclick = () => { playPop(); document.getElementById('createModal').classList.add('active'); };
+        document.getElementById('btnOpenJoin').onclick = () => { playPop(); document.getElementById('joinModal').classList.add('active'); };
+        document.getElementById('btnOpenHow').onclick = () => { playPop(); document.getElementById('howModal').classList.add('active'); };
+        document.getElementById('joinCodeInput').addEventListener('input', function() { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+
+        window.onload = () => {
+            const prefixList = ["Neon", "Siber", "Mavi", "Glitch", "Kizgin", "Uykusuz", "Sinsi", "Citir", "Tok", "Bozuk"];
+            const suffixList = ["Gecko", "Katana", "Mangal", "Kaset", "Klavye", "Fare", "Ates", "Tost", "Sucuk", "Piksel"];
+            document.getElementById('usernameInput').value = prefixList[Math.floor(Math.random() * 10)] + suffixList[Math.floor(Math.random() * 10)];
+            document.getElementById('mainAvatar').src = `profiles/${Math.floor(Math.random() * 10) + 1}.png`;
+        };
+
+        for (let i = 1; i <= 10; i++) {
+            const div = document.createElement('div'); div.className = 'avatar-item';
+            const img = document.createElement('img'); img.src = `profiles/${i}.png`; 
+            img.onerror = function() { this.style.display='none'; div.style.background='#7f8fa6'; };
+            div.appendChild(img); div.onclick = () => { playPop(); document.getElementById('mainAvatar').src = img.src; closeModals(); };
+            document.getElementById('avatarGrid').appendChild(div);
+        }
+
+        const publicToggle = document.getElementById('publicToggle');
+        const lobbyPassword = document.getElementById('lobbyPassword');
+        publicToggle.addEventListener('change', function() {
+            if(this.checked) { lobbyPassword.disabled = true; lobbyPassword.value = ''; lobbyPassword.placeholder = "Şifre Gerekmez"; } 
+            else { lobbyPassword.disabled = false; lobbyPassword.placeholder = "Şifre Belirle"; }
+        });
+
+        document.getElementById('btnOpenInvite').onclick = () => { playPop(); document.getElementById('inviteModal').classList.add('active'); };
+        document.getElementById('btnCopyCode').onclick = function() { playPop(); navigator.clipboard.writeText(myRoomCode).then(() => { this.textContent = "KOPYALANDI!"; setTimeout(() => this.textContent = "KODU KOPYALA", 1500); }); };
+        document.getElementById('btnCopyLink').onclick = function() { playPop(); navigator.clipboard.writeText(window.location.origin + "?code=" + myRoomCode).then(() => { this.textContent = "KOPYALANDI!"; setTimeout(() => this.textContent = "LİNKİ KOPYALA", 1500); }); };
+
+        document.getElementById('toggleCreatePwd').onclick = function() {
+            const input = document.getElementById('lobbyPassword');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            this.textContent = input.type === 'password' ? '👁️' : '🙈';
+        };
+        document.getElementById('toggleJoinPwd').onclick = function() {
+            const input = document.getElementById('joinPasswordInput');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            this.textContent = input.type === 'password' ? '👁️' : '🙈';
+        };
+
+        // ===== ÇİZİM MOTORU =====
+        function generateToolsHTML(prefix) {
+            return `
+                <input type="color" id="colorPicker_${prefix}" value="#1e1e30" title="Renk">
+                <div class="tool-btn active" id="btnPen_${prefix}" title="Kalem"><svg><use href="#icon-pen"></use></svg></div>
+                <div class="tool-btn" id="btnEraser_${prefix}" title="Silgi"><svg><use href="#icon-eraser"></use></svg></div>
+                <div class="tool-btn" id="btnFill_${prefix}" title="Doldur"><svg><use href="#icon-fill"></use></svg></div>
+                <div class="tool-btn" id="btnSquare_${prefix}" title="Kare"><svg><use href="#icon-square"></use></svg></div>
+                <div class="tool-btn" id="btnCircle_${prefix}" title="Yuvarlak"><svg><use href="#icon-circle"></use></svg></div>
+                <div class="tool-btn" id="btnLine_${prefix}" title="Çizgi"><svg><use href="#icon-line"></use></svg></div>
+                <div class="tool-btn" id="btnUndo_${prefix}" title="Geri Al"><svg><use href="#icon-undo"></use></svg></div>
+                <div class="tool-btn" id="btnRedo_${prefix}" title="İleri Al"><svg><use href="#icon-redo"></use></svg></div>
+                <div class="slider-group">
+                    <div class="slider-row"><span>BOYUT</span><input type="range" id="brushSize_${prefix}" min="2" max="40" value="6"></div>
+                    <div class="slider-row"><span>OPAKLIK</span><input type="range" id="opacity_${prefix}" min="1" max="100" value="100"></div>
+                </div>
+            `;
+        }
+        document.getElementById('gameTools').innerHTML = generateToolsHTML('game');
+
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return { r, g, b, a: Math.round(alpha * 255) };
+        }
+
+        function floodFill(ctx, x, y, fillColor) {
+            const canvas = ctx.canvas;
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width, height = canvas.height;
+            if (x < 0 || x >= width || y < 0 || y >= height) return;
+            const targetIdx = (y * width + x) * 4;
+            const targetR = data[targetIdx], targetG = data[targetIdx+1], targetB = data[targetIdx+2], targetA = data[targetIdx+3];
+            if (targetR === fillColor.r && targetG === fillColor.g && targetB === fillColor.b && targetA === fillColor.a) return;
+            const stack = [[x, y]];
+            while (stack.length) {
+                const [cx, cy] = stack.pop();
+                if (cx < 0 || cx >= width || cy < 0 || cy >= height) continue;
+                const idx = (cy * width + cx) * 4;
+                if (data[idx] !== targetR || data[idx+1] !== targetG || data[idx+2] !== targetB || data[idx+3] !== targetA) continue;
+                data[idx] = fillColor.r; data[idx+1] = fillColor.g; data[idx+2] = fillColor.b; data[idx+3] = fillColor.a;
+                stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function setupCanvas(canvasId, prefix, clearBtnId) {
+            const cvs = document.getElementById(canvasId);
+            if (!cvs) return () => {};
+            const cx = cvs.getContext('2d', { willReadFrequently: true });
+            let currentTool = 'pen'; let isDrawing = false; let startX, startY; let snapshot;
+            let undoStack = []; let undoIndex = -1;
+
+            function saveState() { if (undoIndex < undoStack.length - 1) undoStack = undoStack.slice(0, undoIndex + 1); undoStack.push(cvs.toDataURL()); if(undoStack.length > 25) undoStack.shift(); else undoIndex++; }
+            function loadState(index) { if(index < 0 || index >= undoStack.length) return; const img = new Image(); img.src = undoStack[index]; img.onload = () => { cx.clearRect(0, 0, cvs.width, cvs.height); cx.drawImage(img, 0, 0); }; }
+            function clearCvs() { cvs.width = cvs.offsetWidth; cvs.height = cvs.offsetHeight; cx.fillStyle = "white"; cx.globalAlpha = 1.0; cx.fillRect(0, 0, cvs.width, cvs.height); undoStack = []; undoIndex = -1; saveState(); }
+
+            const btns = ['Pen', 'Eraser', 'Fill', 'Square', 'Circle', 'Line'].map(t => document.getElementById(`btn${t}_${prefix}`));
+            btns.forEach((btn, i) => btn.onclick = function() { playTick(); currentTool = ['pen', 'eraser', 'fill', 'square', 'circle', 'line'][i]; btns.forEach(b => b.classList.remove('active')); this.classList.add('active'); });
+            
+            document.getElementById(`btnUndo_${prefix}`).onclick = () => { playTick(); if(undoIndex > 0) { undoIndex--; loadState(undoIndex); } };
+            document.getElementById(`btnRedo_${prefix}`).onclick = () => { playTick(); if(undoIndex < undoStack.length - 1) { undoIndex++; loadState(undoIndex); } };
+            if(clearBtnId) document.getElementById(clearBtnId).onclick = () => { playPop(); clearCvs(); };
+
+            function getXY(e) { 
+                const r = cvs.getBoundingClientRect(); 
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return { x: clientX - r.left, y: clientY - r.top }; 
+            }
+
+            function startDraw(e) {
+                if (document.getElementById('gameCanvasDimmer').classList.contains('active') && canvasId === 'gameCanvas') return;
+                isDrawing = true; const pos = getXY(e); startX = pos.x; startY = pos.y;
+                cx.lineWidth = document.getElementById(`brushSize_${prefix}`).value; cx.lineCap = 'round'; cx.lineJoin = 'round';
+                cx.globalAlpha = document.getElementById(`opacity_${prefix}`).value / 100;
+                cx.strokeStyle = (currentTool === 'eraser') ? "white" : document.getElementById(`colorPicker_${prefix}`).value; 
+                cx.fillStyle = cx.strokeStyle;
+                if (['square', 'circle', 'line'].includes(currentTool)) snapshot = cx.getImageData(0, 0, cvs.width, cvs.height); 
+                else { cx.beginPath(); cx.moveTo(startX, startY); drawEvt(e); }
+            }
+            function endDraw() { if(isDrawing) { isDrawing = false; cx.beginPath(); saveState(); } }
+            function drawEvt(e) {
+                if (!isDrawing) return; e.preventDefault(); const pos = getXY(e);
+                if (currentTool === 'square') { cx.putImageData(snapshot, 0, 0); cx.strokeRect(startX, startY, pos.x - startX, pos.y - startY); } 
+                else if (currentTool === 'circle') { cx.putImageData(snapshot, 0, 0); const r = Math.sqrt(Math.pow(pos.x - startX, 2) + Math.pow(pos.y - startY, 2)); cx.beginPath(); cx.arc(startX, startY, r, 0, 2 * Math.PI); cx.stroke(); } 
+                else if (currentTool === 'line') { cx.putImageData(snapshot, 0, 0); cx.beginPath(); cx.moveTo(startX, startY); cx.lineTo(pos.x, pos.y); cx.stroke(); } 
+                else { cx.lineTo(pos.x, pos.y); cx.stroke(); cx.beginPath(); cx.moveTo(pos.x, pos.y); }
+            }
+
+            function handleFill(e) {
+                const pos = getXY(e);
+                const hex = document.getElementById(`colorPicker_${prefix}`).value;
+                const alpha = document.getElementById(`opacity_${prefix}`).value / 100;
+                floodFill(cx, Math.floor(pos.x), Math.floor(pos.y), hexToRgba(hex, alpha));
+                saveState();
+            }
+            
+            cvs.addEventListener('mousedown', (e) => { if (currentTool === 'fill') handleFill(e); else startDraw(e); });
+            cvs.addEventListener('mouseup', endDraw); cvs.addEventListener('mousemove', drawEvt); cvs.addEventListener('mouseout', endDraw);
+            cvs.addEventListener('touchstart', (e) => { if (currentTool === 'fill') handleFill(e); else startDraw(e); }, {passive: false});
+            cvs.addEventListener('touchend', endDraw); cvs.addEventListener('touchmove', drawEvt, {passive: false});
+            return clearCvs;
+        }
+
+        const resetGameCanvas = setupCanvas('gameCanvas', 'game', 'btnClearGame');
+        window.addEventListener('resize', () => { 
+            if(document.getElementById('gameContainer').style.display === 'block') resetGameCanvas(); 
+        });
+
+        // ===== AĞ / SOCKET =====
+        const socket = io();
+        let myRoomCode = "", myUsername = "", mySettings = {}, isHost = false;
+        let roomsHostId = null, totalPlayers = 0;
+        let allChainsData = null, allPlayersData = null;
+        const myChatColor = `hsl(${Math.floor(Math.random() * 360)}, 100%, 70%)`;
+
+        function getUserData() {
+            const u = document.getElementById('usernameInput').value.trim();
+            if (u.length < 3) { playError(); document.getElementById('usernameInput').classList.add('error'); setTimeout(() => document.getElementById('usernameInput').classList.remove('error'), 300); return null; }
+            myUsername = u; return { username: u, avatar: document.getElementById('mainAvatar').src };
+        }
+
+        document.getElementById('btnRandom').onclick = () => { const u = getUserData(); if(u) { playPop(); socket.emit('joinRandom', u); } };
+        document.getElementById('btnActualCreate').onclick = () => { 
+            const u = getUserData(); 
+            if(u) { 
+                playSuccess();
+                socket.emit('createRoom', {
+                    userData: u, 
+                    isPublic: publicToggle.checked, 
+                    password: lobbyPassword.value
+                }); 
+                closeModals(); 
+            } 
+        };
+        document.getElementById('btnActualJoin').onclick = () => { 
+            const u = getUserData(); 
+            const code = document.getElementById('joinCodeInput').value; 
+            const pwd = document.getElementById('joinPasswordInput').value;
+            if(u && code.length===6) { playPop(); socket.emit('joinWithCode', {userData: u, roomCode: code, password: pwd}); closeModals(); } 
+        };
+
+        document.getElementById('btnBrowseInJoin').onclick = () => { closeModals(); document.getElementById('browseModal').classList.add('active'); socket.emit('getPublicRooms'); };
+
+        socket.on('publicRoomsList', (rooms) => {
+            const list = document.getElementById('roomsList');
+            list.innerHTML = '';
+            if (rooms.length === 0) { list.innerHTML = '<div style="color: white; font-weight: 600; padding: 10px;">Açık lobi yok.</div>'; return; }
+            rooms.forEach(room => {
+                const div = document.createElement('div'); div.className = 'room-row';
+                div.innerHTML = `<div class="room-info"><div class="room-code">${room.code}</div><div class="room-meta">${room.playerCount}/${room.maxPlayers} Oyuncu</div></div><div class="room-lock">${room.hasPassword ? '🔒' : '🔓'}</div>`;
+                div.onclick = () => {
+                    playPop();
+                    if (room.hasPassword) {
+                        const pw = prompt('Bu oda şifreli. Şifreyi gir:'); if (!pw) return;
+                        const u = getUserData(); if (u) socket.emit('joinWithCode', { userData: u, roomCode: room.code, password: pw });
+                    } else { const u = getUserData(); if (u) socket.emit('joinWithCode', { userData: u, roomCode: room.code }); }
+                };
+                list.appendChild(div);
+            });
+        });
+
+        socket.on('joinedRoom', (data) => {
+            playSuccess();
+            isHost = data.isHost;
+            document.getElementById('menuContainer').style.display = 'none';
+            document.getElementById('lobbyContainer').style.display = 'block';
+            document.getElementById('resultViewer').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'none';
+            myRoomCode = data.roomCode; 
+            document.getElementById('lobbyCodeText').textContent = `KOD: ${data.roomCode}`;
+            window.history.replaceState({}, document.title, window.location.pathname);
+        });
+
+        socket.on('updateSettings', (settings) => {
+            document.getElementById('setStartMode').value = settings.startMode;
+            document.getElementById('setTurns').value = settings.turns;
+            document.getElementById('setTime').value = settings.timeMode;
+        });
+
+        const settingInputs = ['setStartMode', 'setTurns', 'setTime'];
+        settingInputs.forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                if (isHost) {
+                    socket.emit('changeSettings', {
+                        roomCode: myRoomCode,
+                        settings: {
+                            startMode: document.getElementById('setStartMode').value,
+                            turns: document.getElementById('setTurns').value,
+                            timeMode: document.getElementById('setTime').value
+                        }
+                    });
+                }
+            });
+        });
+
+        socket.on('updateLobby', (data) => {
+            roomsHostId = data.hostId;
+            totalPlayers = data.players.length;
+            isHost = data.hostId === socket.id;
+
+            settingInputs.forEach(id => document.getElementById(id).disabled = !isHost);
+
+            document.getElementById('playersContainer').innerHTML = ''; 
+            
+            let allInLobby = true;
+            data.players.forEach(player => {
+                const isPlayerHost = player.id === data.hostId;
+                if (!player.inLobby) allInLobby = false;
+                
+                const statusIcon = !player.inLobby ? '<span title="Sonuçlara Bakıyor" style="font-size:11px; margin-left:5px; padding:3px 6px; background:var(--btn-yellow); color:#1e1e30; border-radius:8px; font-weight:800;">SONUÇLARDA 👀</span>' : '';
+
+                document.getElementById('playersContainer').innerHTML += `
+                    <div class="player-card" style="${!player.inLobby ? 'opacity: 0.6;' : ''}">
+                        <div class="avatar-host-wrap">
+                            <img src="${player.avatar}">
+                            ${isPlayerHost ? `<div class="crown-badge"><svg width="14" height="14"><use href="#icon-crown"></use></svg></div>` : ''}
+                        </div>
+                        <span>${player.username} ${statusIcon}</span>
+                    </div>`;
+            });
+            
+            const btnStart = document.getElementById('btnStartGame');
+            if(data.players.length < 2) {
+                btnStart.disabled = true; btnStart.textContent = "EN AZ 2 OYUNCU LAZIM"; btnStart.classList.remove('btn-play');
+            } else if (!allInLobby) {
+                btnStart.disabled = true; btnStart.textContent = "HERKES BEKLENİYOR..."; btnStart.classList.remove('btn-play');
+            } else {
+                if(isHost) { btnStart.disabled = false; btnStart.textContent = "OYUNU BAŞLAT"; btnStart.classList.add('btn-play'); } 
+                else { btnStart.disabled = true; btnStart.textContent = "KURUCU BEKLENİYOR..."; btnStart.classList.remove('btn-play'); }
+            }
+        });
+
+        document.getElementById('btnLeaveRoom').onclick = () => {
+            playWhoosh();
+            socket.emit('leaveRoom', myRoomCode);
+            location.reload();
+        };
+
+        document.getElementById('btnSendChat').onclick = () => { 
+            const msg = document.getElementById('chatInput').value.trim(); 
+            if(msg.length > 0 && myRoomCode !== "") { 
+                playTick();
+                socket.emit('sendMessage', { roomCode: myRoomCode, username: myUsername, message: msg, color: myChatColor }); 
+                document.getElementById('chatInput').value = ''; 
+            } 
+        };
+        document.getElementById('chatInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') document.getElementById('btnSendChat').click(); });
+        socket.on('receiveMessage', (data) => { 
+            playTick();
+            document.getElementById('chatMessages').innerHTML += `<div style="margin-bottom: 4px; color: ${data.color};">${data.sender}: ${data.message}</div>`; 
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; 
+        });
+        socket.on('errorMsg', (msg) => { playError(); alert(msg); });
+
+        // ===== OYUN AKIŞI VE SAYAÇ =====
+        document.getElementById('btnStartGame').onclick = () => { playWhoosh(); socket.emit('startGame', myRoomCode); };
+
+        let countdownInterval;
+        socket.on('startCountdown', () => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            const overlay = document.getElementById('countdownOverlay');
+            const numEl = document.getElementById('countdownNumber');
+            overlay.classList.add('active'); 
+            
+            let count = 5;
+            numEl.textContent = count;
+            numEl.style.fontSize = "150px"; 
+            playBeep();
+
+            countdownInterval = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    numEl.textContent = count;
+                    numEl.classList.remove('pop');
+                    void numEl.offsetWidth;
+                    numEl.classList.add('pop');
+                    playBeep();
+                } else {
+                    clearInterval(countdownInterval);
+                    numEl.textContent = "BAŞLA!";
+                    playSuccess();
+                    setTimeout(() => {
+                        overlay.classList.remove('active'); 
+                        document.getElementById('lobbyContainer').style.display = 'none'; 
+                        document.getElementById('gameContainer').style.display = 'block'; 
+                        if(isHost) socket.emit('requestPhase1', myRoomCode); 
+                    }, 1000);
+                }
+            }, 1000);
+        });
+
+        let drawTimerInterval;
+        let isPlayerReady = false;
+        let currentPhase = 'none';
+        let currentTargetChain = null;
+        let roundSubmitted = false;
+
+        const btnFinishEarly = document.getElementById('btnFinishEarly');
+        
+        btnFinishEarly.onclick = () => {
+            if (roundSubmitted) return;
+            playPop(); isPlayerReady = !isPlayerReady;
+            if(isPlayerReady) {
+                btnFinishEarly.textContent = "DEVAM ET"; btnFinishEarly.classList.add('ready');
+                if(currentPhase === 'write' || currentPhase === 'guess') { document.getElementById('writeDimmer').classList.add('active'); document.getElementById('scenarioInput').blur(); }
+                if(currentPhase === 'draw') document.getElementById('gameCanvasDimmer').classList.add('active');
+            } else {
+                btnFinishEarly.textContent = "BİTİR (HAZIR)"; btnFinishEarly.classList.remove('ready');
+                if(currentPhase === 'write' || currentPhase === 'guess') document.getElementById('writeDimmer').classList.remove('active');
+                if(currentPhase === 'draw') document.getElementById('gameCanvasDimmer').classList.remove('active');
+            }
+            socket.emit('toggleReady', { roomCode: myRoomCode, isReady: isPlayerReady });
+        };
+
+        socket.on('readyCount', (data) => {
+            const txt = `${data.ready}/${data.total} HAZIR`;
+            document.getElementById('readyCounter').textContent = txt;
+            document.getElementById('dimmerReadyCount').textContent = txt;
+            document.getElementById('dimmerReadyCountDraw').textContent = txt;
+        });
+
+        socket.on('forceEndRound', () => { if(drawTimerInterval) clearInterval(drawTimerInterval); finishRoundAndSend(); });
+
+        function getPhaseDuration(type, timeMode) {
+            if (timeMode === 'infinite') return 0;
+            if (type === 'write') return timeMode === 'fast' ? 15 : (timeMode === 'slow' ? 60 : 30);
+            if (type === 'draw') return timeMode === 'fast' ? 30 : (timeMode === 'slow' ? 120 : 60);
+            return 30;
+        }
+
+        function startPhaseTimer(type, settings) {
+            if(drawTimerInterval) clearInterval(drawTimerInterval);
+            let timeLeft = getPhaseDuration(type, settings.timeMode);
+            if (timeLeft === 0) {
+                document.getElementById('gameTimer').textContent = '∞';
+            } else {
+                document.getElementById('gameTimer').textContent = timeLeft;
+                drawTimerInterval = setInterval(() => {
+                    timeLeft--; document.getElementById('gameTimer').textContent = timeLeft;
+                    if(timeLeft <= 3 && timeLeft > 0) playBeep(true); 
+                    if(timeLeft <= 0) { clearInterval(drawTimerInterval); finishRoundAndSend(); }
+                }, 1000);
+            }
+        }
+
+        socket.on('startWritePhase', (data) => {
+            roundSubmitted = false; 
+            currentPhase = 'write'; currentTargetChain = null; isPlayerReady = false;
+            btnFinishEarly.textContent = "BİTİR (HAZIR)"; btnFinishEarly.classList.remove('ready');
+            document.getElementById('writeDimmer').classList.remove('active');
+            document.getElementById('drawPhaseWrapper').style.display = 'none'; document.getElementById('btnClearGame').style.display = 'none';
+            document.getElementById('writePhaseWrapper').style.display = 'flex'; document.getElementById('guessImage').style.display = 'none';
+            
+            document.getElementById('taskTextTitle').innerHTML = `YAZI TURU: <span class="word-highlight" style="font-size:20px;">En Saçma Şeyi Yaz!</span>`;
+            document.getElementById('scenarioInput').value = ''; document.getElementById('scenarioInput').placeholder = "Aklına gelen en uçuk, en komik cümleyi yaz...";
+            
+            startPhaseTimer('write', data.settings);
+        });
+
+        socket.on('startFreeDrawPhase', (data) => {
+            roundSubmitted = false;
+            currentPhase = 'draw'; currentTargetChain = null; isPlayerReady = false;
+            btnFinishEarly.textContent = "BİTİR (HAZIR)"; btnFinishEarly.classList.remove('ready');
+            document.getElementById('gameCanvasDimmer').classList.remove('active');
+            
+            const overlay = document.getElementById('countdownOverlay'); const numEl = document.getElementById('countdownNumber');
+            overlay.classList.add('active'); numEl.style.fontSize = "50px"; numEl.textContent = "ÇİZİM TURU!"; playBeep();
+            
+            setTimeout(() => {
+                overlay.classList.remove('active'); numEl.style.fontSize = "150px";
+                document.getElementById('writePhaseWrapper').style.display = 'none'; document.getElementById('drawPhaseWrapper').style.display = 'flex'; document.getElementById('btnClearGame').style.display = 'block'; document.getElementById('guessImage').style.display = 'none';
+                
+                document.getElementById('taskTextTitle').innerHTML = `SERBEST ÇİZİM: <span class="word-highlight" style="font-size:20px;">İstediğin bir şeyi çiz!</span>`;
+                resetGameCanvas(); 
+                
+                startPhaseTimer('draw', data.settings);
+            }, 2000);
+        });
+
+        socket.on('startDrawPhase', (data) => {
+            roundSubmitted = false;
+            currentPhase = 'draw'; currentTargetChain = data.targetChainId; isPlayerReady = false;
+            btnFinishEarly.textContent = "BİTİR (HAZIR)"; btnFinishEarly.classList.remove('ready');
+            document.getElementById('gameCanvasDimmer').classList.remove('active');
+            const overlay = document.getElementById('countdownOverlay'); const numEl = document.getElementById('countdownNumber');
+            overlay.classList.add('active'); numEl.style.fontSize = "50px"; numEl.textContent = "ÇİZİM TURU!"; playBeep();
+            
+            setTimeout(() => {
+                overlay.classList.remove('active'); numEl.style.fontSize = "150px";
+                document.getElementById('writePhaseWrapper').style.display = 'none'; document.getElementById('drawPhaseWrapper').style.display = 'flex'; document.getElementById('btnClearGame').style.display = 'block'; document.getElementById('guessImage').style.display = 'none';
+                
+                document.getElementById('taskTextTitle').innerHTML = `ÇİZ: <span class="word-highlight" style="font-size:20px;">${data.textToDraw}</span>`;
+                resetGameCanvas(); 
+                
+                startPhaseTimer('draw', data.settings);
+            }, 2000);
+        });
+
+        socket.on('startGuessPhase', (data) => {
+            roundSubmitted = false;
+            currentPhase = 'guess'; currentTargetChain = data.targetChainId; isPlayerReady = false;
+            btnFinishEarly.textContent = "BİTİR (HAZIR)"; btnFinishEarly.classList.remove('ready');
+            document.getElementById('writeDimmer').classList.remove('active');
+            const overlay = document.getElementById('countdownOverlay'); const numEl = document.getElementById('countdownNumber');
+            overlay.classList.add('active'); numEl.style.fontSize = "50px"; numEl.textContent = "TAHMİN TURU!"; playBeep();
+            
+            setTimeout(() => {
+                overlay.classList.remove('active'); numEl.style.fontSize = "150px";
+                document.getElementById('drawPhaseWrapper').style.display = 'none'; document.getElementById('btnClearGame').style.display = 'none'; document.getElementById('writePhaseWrapper').style.display = 'flex';
+                
+                document.getElementById('guessImage').src = data.imageToGuess; document.getElementById('guessImage').style.display = 'block';
+                document.getElementById('taskTextTitle').innerHTML = `TAHMİN ET: <span class="word-highlight" style="font-size:20px;">Bu çizim ne?</span>`;
+                document.getElementById('scenarioInput').value = ''; document.getElementById('scenarioInput').placeholder = "Gözüne çarpan ilk şeyi yaz...";
+                
+                startPhaseTimer('write', data.settings);
+            }, 2000);
+        });
+
+        function finishRoundAndSend() {
+            if (roundSubmitted) return;
+            roundSubmitted = true;
+            
+            if(!isPlayerReady) socket.emit('toggleReady', { roomCode: myRoomCode, isReady: true });
+            
+            if(currentPhase === 'write' || currentPhase === 'guess') {
+                let txt = document.getElementById('scenarioInput').value.trim();
+                if(txt === '') txt = currentPhase === 'guess' ? "Bir şey çizilmiş ama ne olduğunu anlamadım" : "Hiçbir şey düşünemeyen bir oyuncu";
+                socket.emit('submitText', { roomCode: myRoomCode, username: myUsername, text: txt, targetChainId: currentTargetChain });
+            } 
+            else if (currentPhase === 'draw') {
+                const imageData = document.getElementById('gameCanvas').toDataURL("image/png");
+                socket.emit('submitDrawing', { roomCode: myRoomCode, username: myUsername, targetChainId: currentTargetChain, image: imageData });
+            }
+        }
+
+        // ===== SONUÇ EKRANI =====
+        socket.on('gameFinished', (data) => {
+            playSuccess();
+            allChainsData = data.chains;
+            allPlayersData = data.players;
+            
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('lobbyContainer').style.display = 'none';
+            document.getElementById('resultViewer').style.display = 'flex';
+            
+            document.getElementById('resultStage').style.display = 'none';
+            document.getElementById('resultControls').style.display = 'none';
+
+            if (isHost) {
+                document.getElementById('resultSettings').style.display = 'flex';
+                document.getElementById('resultWaiting').style.display = 'none';
+            } else {
+                document.getElementById('resultSettings').style.display = 'none';
+                document.getElementById('resultWaiting').style.display = 'flex';
+            }
+        });
+
+        document.getElementById('btnStartAlbum').onclick = () => {
+            playWhoosh();
+            const settings = { manualResults: document.getElementById('resManualToggle').checked, voice: document.getElementById('resVoiceToggle').checked };
+            socket.emit('startResults', { roomCode: myRoomCode, settings: settings });
+        };
+
+        socket.on('showResultIntro', (data) => {
+            playWhoosh();
+            document.getElementById('resultSettings').style.display = 'none';
+            document.getElementById('resultWaiting').style.display = 'none';
+            document.getElementById('resultStage').style.display = 'flex';
+            document.getElementById('resultControls').style.display = 'flex';
+            
+            document.getElementById('resultStage').innerHTML = `
+                <div class="result-big-text" style="background: none; border: none; box-shadow: none; animation: popIn 0.5s ease;">
+                    <div style="font-size: clamp(40px, 10vw, 80px); color: var(--btn-yellow); text-shadow: 4px 4px 0 #1e1e30; line-height: 1;">${data.chainOwner}</div>
+                    <div style="font-size: clamp(24px, 6vw, 40px); color: white; margin-top: 10px;">adlı oyuncunun zinciri...</div>
+                </div>
+            `;
+            document.getElementById('resultControls').innerHTML = ''; 
+            if (data.settings && data.settings.voice) speakText(data.chainOwner + " adlı oyuncunun zinciri");
+        });
+
+        socket.on('showResultStep', (data) => {
+            playPageTurn();
+            const stage = document.getElementById('resultStage');
+            const controls = document.getElementById('resultControls');
+            const activeSettings = data.settings || {};
+
+            stage.innerHTML = `
+                <div class="result-chain-label" id="resultChainLabel">📖 ${data.chainOwner}'ın Zinciri</div>
+                <div id="resultContent"></div>
+                <div class="result-step-badge" id="resultStepBadge">Adım ${data.stepIndex + 1} / ${data.totalSteps}</div>
+                <div class="progress-track"><div class="progress-fill" id="resultProgressFill"></div></div>
+            `;
+            
+            const content = document.getElementById('resultContent');
+            const fill = document.getElementById('resultProgressFill');
+            
+            if (data.step.author) {
+                const authorDiv = document.createElement('div');
+                authorDiv.style.fontSize = 'clamp(20px, 5vw, 28px)';
+                authorDiv.style.color = 'var(--btn-yellow)';
+                authorDiv.style.fontWeight = '800';
+                authorDiv.style.marginBottom = '15px';
+                authorDiv.style.textShadow = '2px 2px 0 #1e1e30';
+                authorDiv.textContent = `${data.step.author} ${data.step.actionText || 'yaptı:'}`;
+                content.appendChild(authorDiv);
+            }
+
+            if (data.step.type === 'text') {
+                const div = document.createElement('div');
+                div.className = 'result-big-text';
+                div.textContent = data.step.value;
+                content.appendChild(div);
+                if (activeSettings.voice) speakText(data.step.value);
+            } else {
+                const img = document.createElement('img');
+                img.className = 'result-big-img';
+                img.src = data.step.value;
+                content.appendChild(img);
+                if (activeSettings.voice) speakText("Bir çizim gösteriliyor");
+            }
+            
+            const totalGlobalSteps = data.totalChains * data.totalSteps; 
+            const currentGlobal = data.chainIndex * data.totalSteps + data.stepIndex;
+            fill.style.width = `${((currentGlobal + 1) / (data.totalChains * data.avgSteps || data.totalSteps)) * 100}%`;
+            
+            controls.innerHTML = '';
+            if (isHost && activeSettings.manualResults) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-create';
+                btn.textContent = 'SONRAKİ ➡️';
+                btn.onclick = () => { playPop(); socket.emit('nextResult', myRoomCode); };
+                controls.appendChild(btn);
+            }
+        });
+
+        socket.on('showEndOfChain', (data) => {
+            playSuccess();
+            const controls = document.getElementById('resultControls');
+            controls.innerHTML = ''; 
+            
+            if (isHost) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-play';
+                if (data.isLastChain) btn.textContent = 'TÜMÜ BİTTİ (GALERİYE GEÇ) 🏁';
+                else btn.textContent = 'SONRAKİ KİŞİNİN ZİNCİRİNE GEÇ ➡️';
+                btn.onclick = () => { playPop(); socket.emit('nextChain', myRoomCode); };
+                controls.appendChild(btn);
+            } else {
+                controls.innerHTML = '<div class="result-chain-label" style="background: var(--btn-blue); color: white;">Kurucunun diğer zincire geçmesi bekleniyor...</div>';
+            }
+        });
+
+        socket.on('resultsFinished', showGallery);
+
+        function showGallery() {
+            playSuccess();
+            document.getElementById('resultSettings').style.display = 'none';
+            document.getElementById('resultWaiting').style.display = 'none';
+            document.getElementById('resultStage').style.display = 'flex';
+            document.getElementById('resultControls').style.display = 'flex';
+
+            const stage = document.getElementById('resultStage');
+            let galleryHTML = `<div class="logo" style="font-size: clamp(32px, 8vw, 48px); margin-bottom: 20px;">TÜM ZİNCİRLER</div>`;
+            galleryHTML += `<p style="color: white; font-size: 18px; margin-bottom: 20px;">İstediğin oyuncunun zincirine tıklayarak tüm turu inceleyebilirsin.</p>`;
+            galleryHTML += `<div class="chain-gallery" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; width: 100%; max-width: 800px;">`;
+            
+            allPlayersData.forEach(p => {
+                if(allChainsData && allChainsData[p.id]) {
+                    galleryHTML += `
+                    <div class="chain-card" style="background: #2b2b45; border: 4px solid #1e1e30; border-radius: 15px; padding: 15px; width: clamp(120px, 30vw, 150px); cursor: pointer; transition: 0.1s;" onclick="viewChain('${p.id}')">
+                        <img src="${p.avatar}" style="width: 60px; height: 60px; border-radius: 15px; border: 3px solid #1e1e30; margin-bottom: 10px; object-fit: cover; background: #1e1e30;">
+                        <div style="color: white; font-weight: 800; font-size: clamp(14px, 3vw, 16px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.username}</div>
+                        <div style="color: var(--btn-yellow); font-size: 13px; font-weight: bold; margin-top: 5px;">İncele 🔍</div>
+                    </div>`;
+                }
+            });
+            galleryHTML += `</div>`;
+            
+            stage.innerHTML = galleryHTML;
+            document.getElementById('resultControls').innerHTML = `
+                <button class="btn btn-play" id="btnEndResults">LOBİYE DÖN</button>
+            `;
+            
+            // BURASI GÜNCELLENDİ: Ekranı gizle ve lobiye geç
+            document.getElementById('btnEndResults').onclick = () => { 
+                playPop(); 
+                document.getElementById('resultViewer').style.display = 'none';
+                document.getElementById('lobbyContainer').style.display = 'block';
+                socket.emit('returnToLobby', myRoomCode); 
+            };
+        }
+
+        window.viewChain = function(chainId) {
+            playPop();
+            const chain = allChainsData[chainId];
+            const owner = allPlayersData.find(p => p.id === chainId)?.username || 'Bilinmeyen';
+            
+            const stage = document.getElementById('resultStage');
+            let chainHTML = `<div class="result-chain-label" style="margin-bottom: 20px;">📖 ${owner}'ın Zinciri</div>`;
+            chainHTML += `<div class="chain-view-container" style="display:flex; flex-direction:column; gap:20px; width:100%; max-width:800px; max-height: 60vh; overflow-y: auto; padding-right: 10px;">`;
+            
+            chain.forEach((step, idx) => {
+                chainHTML += `<div style="background: #2b2b45; border: 4px solid #1e1e30; border-radius: 20px; padding: 20px; text-align: center;">`;
+                chainHTML += `<div style="color: var(--btn-yellow); font-weight: 800; font-size: 20px; margin-bottom: 10px;">${step.author} ${step.actionText || 'yaptı:'}</div>`;
+                if(step.type === 'text') {
+                    chainHTML += `<div style="color: white; font-weight: 800; font-size: 28px; word-break: break-word;">${step.value}</div>`;
+                } else {
+                    chainHTML += `<img src="${step.value}" style="max-width: 100%; border-radius: 15px; border: 4px solid #1e1e30; background: white;">`;
+                }
+                chainHTML += `</div>`;
+            });
+            chainHTML += `</div>`;
+            
+            stage.innerHTML = chainHTML;
+            document.getElementById('resultControls').innerHTML = `
+                <button class="btn btn-create" onclick="showGallery()" style="margin-bottom: 0;">🔙 GALERİYE DÖN</button>
+                <button class="btn btn-play" id="btnEndResults">LOBİYE DÖN</button>
+            `;
+            
+            // BURASI GÜNCELLENDİ: Ekranı gizle ve lobiye geç
+            document.getElementById('btnEndResults').onclick = () => { 
+                playPop(); 
+                document.getElementById('resultViewer').style.display = 'none';
+                document.getElementById('lobbyContainer').style.display = 'block';
+                socket.emit('returnToLobby', myRoomCode); 
+            };
+        }
+
+    </script>
+</body>
+</html>
