@@ -4,7 +4,7 @@ Gartic Phone tarzı, tarayıcı tabanlı çizim ve tahmin oyunu. Arkadaşlarınl
 
 ## 🚀 Canlı Oyna
 
-[Render.com linkin buraya gelecek]
+(https://render-fail.onrender.com)
 
 ## 📱 Özellikler
 
