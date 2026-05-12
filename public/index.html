@@ -96,7 +96,9 @@
         .canvas-dimmer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 30, 48, 0.85); border-radius: 15px; display: none; justify-content: center; align-items: center; z-index: 5; color: var(--btn-yellow); font-size: clamp(20px, 5vw, 28px); font-weight: 800; text-shadow: 2px 2px 0 #1e1e30; backdrop-filter: blur(2px); flex-direction: column; gap: 10px; }
         .canvas-dimmer.active { display: flex; }
 
-        #gameCanvas { background: white; border: 4px solid #1e1e30; border-radius: 15px; cursor: none; touch-action: none; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); width: 100%; position: relative; z-index: 1; height: clamp(220px, 40vh, 400px); }
+        /* YENİ EKLENEN/DÜZENLENEN KISIM: draw-area-wrap - Mobil Araç Paneli Bug Çözümü */
+        .draw-area-wrap { position: relative; width: 100%; height: clamp(220px, 40vh, 400px); background: white; border: 4px solid #1e1e30; border-radius: 15px; box-shadow: inset 0 4px 0 rgba(0,0,0,0.1); overflow: hidden; }
+        #gameCanvas, #memeselTemplateImg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: none; touch-action: none; object-fit: contain; }
         
         #textBoxOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; border-radius: 15px; overflow: hidden; }
         .drawn-text-box { position: absolute; border: 3px dashed var(--btn-yellow); background: rgba(255,193,7,0.2); display: flex; justify-content: center; align-items: center; pointer-events: auto; cursor: grab; }
@@ -109,23 +111,22 @@
         .box-resizer:active { background: var(--btn-yellow); }
 
         #memeselFillWrapper { display: none; position: relative; flex-direction: column; gap: 8px; flex: 1; }
-        #memeselTemplateImg { width: 100%; height: clamp(220px, 40vh, 400px); object-fit: contain; background: white; border: 4px solid #1e1e30; border-radius: 15px; }
         #memeselInputOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         .meme-input { position: absolute; background: rgba(255,255,255,0.8); border: 3px solid #1e1e30; font-family: 'Baloo 2', cursive; font-weight: 800; color: #1e1e30; text-align: center; resize: none; overflow: hidden; pointer-events: auto; outline: none; border-radius: 8px; padding: 5px;}
 
         .brush-cursor { position: fixed; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); border: 2px solid rgba(30,30,48,0.8); z-index: 999; display: none; }
 
-        .tools-panel { background: #2b2b45; border: 4px solid #1e1e30; border-radius: 15px; padding: 8px; display: flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
-        .tool-btn { background: white; border: 3px solid #1e1e30; border-radius: 12px; width: clamp(35px, 8vw, 45px); height: clamp(35px, 8vw, 45px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; color: #1e1e30; }
+        .tools-panel { background: #2b2b45; border: 4px solid #1e1e30; border-radius: 15px; padding: 8px; display: flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; position: relative; z-index: 10; }
+        .tool-btn { background: white; border: 3px solid #1e1e30; border-radius: 12px; width: clamp(35px, 8vw, 45px); height: clamp(35px, 8vw, 45px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.1s; color: #1e1e30; touch-action: manipulation; }
         .tool-btn svg { width: clamp(20px, 4.5vw, 24px); height: clamp(20px, 4.5vw, 24px); pointer-events: none; }
         .tool-btn.active { background: var(--btn-yellow); transform: scale(1.1); box-shadow: 0 4px 0 #1e1e30; }
-        input[type="color"] { -webkit-appearance: none; border: none; width: clamp(35px, 8vw, 45px); height: clamp(35px, 8vw, 45px); cursor: pointer; padding: 0; background: transparent; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: clamp(35px, 8vw, 45px); height: clamp(35px, 8vw, 45px); cursor: pointer; padding: 0; background: transparent; touch-action: manipulation;}
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 3px solid #1e1e30; border-radius: 12px; }
         
         .slider-group { display: flex; flex-direction: column; gap: 4px; flex: 1; padding: 0 8px; min-width: 100px; }
         .slider-row { display: flex; align-items: center; gap: 8px; font-size: clamp(10px, 2vw, 13px); font-weight: 800; color: var(--btn-yellow); text-shadow: 1px 1px 0 #1e1e30; }
-        input[type=range] { -webkit-appearance: none; width: 100%; background: #1e1e30; height: 8px; border-radius: 4px; outline: none; padding: 0; margin: 0; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: #1e1e30; height: 8px; border-radius: 4px; outline: none; padding: 0; margin: 0; touch-action: manipulation;}
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--btn-yellow); border: 3px solid #1e1e30; border-radius: 50%; cursor: pointer; }
 
         .btn-finish-early { background: var(--btn-green); color: white; border: 4px solid #1e1e30; border-radius: 15px; padding: 10px 16px; font-weight: 800; font-size: clamp(14px, 3.5vw, 20px); cursor: pointer; box-shadow: 0 6px 0 #3b9c2a, 0 6px 0 4px #1e1e30; transition: 0.1s; text-transform: uppercase; flex: 1; margin-left: 8px; }
@@ -221,28 +222,6 @@
             .wp-player-card span { font-size: 12px; }
         }
 
-        /* YENİ GÜÇLENDİRİLMİŞ YATAY EKRAN (LANDSCAPE) TASARIMI */
-        @media screen and (orientation: landscape) and (max-height: 600px) {
-            .container { padding: 8px; border-radius: 12px; border-width: 3px; max-width: 98%; max-height: 98vh; }
-            .game-header { margin-bottom: 5px; padding: 4px 8px; }
-            .task-text { font-size: 14px; }
-            .timer-box { font-size: 18px; padding: 2px 6px; }
-            
-            .main-canvas-wrapper, #memeselFillWrapper { flex-direction: row; gap: 8px; align-items: stretch; }
-            .main-canvas-wrapper > div:not(.canvas-dimmer) { flex: 1; width: auto !important; height: clamp(180px, 65vh, 400px) !important; }
-            #memeselTemplateImg { height: clamp(180px, 65vh, 400px); flex: 1; }
-            
-            .tools-panel { flex-direction: column; width: 60px; padding: 4px; overflow-y: auto; overflow-x: hidden; justify-content: flex-start; gap: 4px; flex-wrap: nowrap; }
-            .tool-btn { width: 34px; height: 34px; border-width: 2px; flex-shrink: 0; }
-            .slider-group { flex-direction: column; padding: 0; min-width: auto; align-items: center; }
-            .slider-row { font-size: 9px; flex-direction: column; gap: 2px; }
-            input[type="color"] { width: 34px; height: 34px; flex-shrink: 0; }
-            input[type=range] { width: 40px; }
-            
-            .btn-finish-early { font-size: 14px; padding: 6px 10px; margin-top: 0; }
-            #wpResultContainer { flex-direction: row; height: 95vh; padding: 10px; }
-        }
-
         /* MOBİL DEDEKTÖRÜ - ARAYÜZÜ KÜÇÜLT, ÇİZİM ALANINI BÜYÜK TUT */
         html.is-mobile .container { padding: 12px; border-radius: 15px; }
         html.is-mobile .logo { font-size: 26px !important; margin-bottom: 12px; }
@@ -261,9 +240,9 @@
         html.is-mobile .timer-box { font-size: 20px !important; padding: 2px 8px; min-width: 40px; }
         html.is-mobile .write-phase-wrapper textarea { font-size: 20px !important; }
 
-        /* ÇİZİM ALANI VE ARAÇLARI (BURASI TELEFONDA NEFES ALACAK) */
+        /* ÇİZİM ALANI VE ARAÇLARI KESİN ÇÖZÜM - ARAÇLARI GİZLEMEMESİ İÇİN */
         html.is-mobile .main-canvas-wrapper, html.is-mobile #memeselFillWrapper { gap: 6px; }
-        html.is-mobile #gameCanvas, html.is-mobile #memeselTemplateImg { height: clamp(300px, 55vh, 600px) !important; }
+        html.is-mobile .draw-area-wrap { height: clamp(260px, 45vh, 500px) !important; }
         html.is-mobile .tools-panel { padding: 4px; gap: 4px; }
         html.is-mobile .tool-btn { width: 34px; height: 34px; border-width: 2px; }
         html.is-mobile input[type="color"] { width: 34px; height: 34px; }
@@ -475,8 +454,8 @@
         <div class="main-canvas-wrapper" id="drawPhaseWrapper" style="display: none;">
             <div id="gameCanvasDimmer" class="canvas-dimmer"><span>HAZIR! BEKLENİYOR...</span><span id="dimmerReadyCountDraw" style="font-size:18px; color:white;"></span></div>
             
-            <div style="position: relative; width: 100%; height: clamp(220px, 40vh, 400px);">
-                <canvas id="gameCanvas" style="position: absolute; top:0; left:0; height:100%;"></canvas>
+            <div class="draw-area-wrap">
+                <canvas id="gameCanvas"></canvas>
                 <div id="textBoxOverlay"></div>
             </div>
 
@@ -485,7 +464,8 @@
 
         <div id="memeselFillWrapper">
             <div id="memeselDimmer" class="canvas-dimmer" style="z-index:10;"><span>HAZIR! BEKLENİYOR...</span><span id="dimmerReadyCountMemesel" style="font-size:18px; color:white;"></span></div>
-            <div style="position: relative; width: 100%; height: clamp(220px, 40vh, 400px);">
+            
+            <div class="draw-area-wrap">
                 <img id="memeselTemplateImg">
                 <div id="memeselInputOverlay"></div>
             </div>
@@ -576,7 +556,7 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // MOBİL CİHAZ KONTROLÜ: Girildiği an cihazı tarar.
+        // MOBİL CİHAZ KONTROLÜ
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             document.documentElement.classList.add('is-mobile');
         }
@@ -829,10 +809,21 @@
             document.getElementById(`btnUndo_${prefix}`).onclick = () => { playTick(); if(undoIndex > 0) { undoIndex--; loadState(undoIndex); } };
             if(clearBtnId) document.getElementById(clearBtnId).onclick = () => { playPop(); clearCvs(); };
 
+            // MOBİL ÇİZİM KAYMA SORUNU ÇÖZÜMÜ: Scale hesaplama eklendi.
             function getXY(e) { 
                 const r = cvs.getBoundingClientRect(); 
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX); const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                return { x: clientX - r.left, y: clientY - r.top, cx: clientX, cy: clientY }; 
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX); 
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                
+                const scaleX = cvs.width / r.width;
+                const scaleY = cvs.height / r.height;
+                
+                return { 
+                    x: (clientX - r.left) * scaleX, 
+                    y: (clientY - r.top) * scaleY, 
+                    cx: clientX, 
+                    cy: clientY 
+                }; 
             }
 
             function updateCursor(e) {
@@ -1164,7 +1155,7 @@
             data.players.forEach(player => {
                 const isPlayerHost = player.id === data.hostId;
                 if (!player.inLobby) allInLobby = false;
-                const statusIcon = !player.inLobby ? '<span title="Sonuçlara Bakıyor" style="font-size:11px; margin-left:5px; padding:3px 6px; background:var(--btn-yellow); color:#1e1e30; border-radius:8px; font-weight:800;">👀</span>' : '';
+                const statusIcon = !player.inLobby ? '<span title="Lobiye Dönmedi" style="font-size:11px; margin-left:5px; padding:3px 6px; background:#FF5E57; color:white; border-radius:8px; font-weight:800;">👀</span>' : '';
                 document.getElementById('playersContainer').innerHTML += `
                     <div class="player-card ${player.isSpectator ? 'eliminated' : ''}" style="${!player.inLobby ? 'opacity: 0.6;' : ''}">
                         <div class="avatar-host-wrap"><img src="${player.avatar}">${isPlayerHost ? `<div class="crown-badge"><svg width="14" height="14"><use href="#icon-crown"></use></svg></div>` : ''}</div>
@@ -1188,7 +1179,7 @@
                 const isPlayerHost = player.id === data.hostId;
                 if (!player.inLobby) allInLobby = false;
                 if(player.id === socket.id && player.isSpectator) isEliminated = true;
-                const statusIcon = !player.inLobby ? '<span style="font-size:11px; margin-left:5px; padding:3px 6px; background:var(--btn-yellow); color:#1e1e30; border-radius:8px; font-weight:800;">👀</span>' : '';
+                const statusIcon = !player.inLobby ? '<span style="font-size:11px; margin-left:5px; padding:3px 6px; background:#FF5E57; color:white; border-radius:8px; font-weight:800;">👀</span>' : '';
                 const cardHTML = `
                     <div class="player-card ${player.isSpectator ? 'eliminated' : ''}" style="${!player.inLobby && !player.isSpectator ? 'opacity: 0.6;' : ''}">
                         <div class="avatar-host-wrap"><img src="${player.avatar}">${isPlayerHost && !player.isSpectator ? `<div class="crown-badge"><svg width="14" height="14"><use href="#icon-crown"></use></svg></div>` : ''}</div>
@@ -1547,7 +1538,6 @@
 
             document.getElementById('wpStepBadge').textContent = `Adım ${data.stepIndex + 1} / ${data.totalSteps}`; document.getElementById('wpStepBadge').style.color = "var(--btn-yellow)";
 
-            // GÜNCELLEME: Memesel şablonlarındaki değer okuma hatası giderildi.
             let contentHtml = '';
             let imgSrc = data.step.value || data.step.image; 
 
@@ -1598,57 +1588,571 @@
 
             if(reallyGameOver) {
                 document.getElementById('elimTitle').innerHTML = "🏆 OYUN BİTTİ 🏆";
-                document.getElementById('eliminationWinner').innerHTML = `BÜYÜK ŞAMPİYON:<br><span style="font-size:1.5em; color:var(--btn-yellow);">${data.winnerName || "Son Kalan"}</span>`;
-                document.getElementById('eliminationLosers').innerHTML = "";
-            } else {
-                document.getElementById('elimTitle').innerHTML = "TUR SONUCU";
-                document.getElementById('eliminationWinner').innerHTML = `🌟 ${data.winnerName || "En yüksek puanı alan"} bu turu birincilikle tamamladı! 🌟`;
-                if(data.loserNames && data.loserNames.length > 0) { document.getElementById('eliminationLosers').innerHTML = `💀 ${data.loserNames.join(" ve ")} elendi!`; playError(); } 
-                else { document.getElementById('eliminationLosers').innerHTML = ""; }
-            }
+                document.getElementById('eliminationWinner').Kanka haklısın, problemi tam on ikiden vurmuşsun! Mobil cihazlarda tuvalin (canvas) boyutu CSS ile büyürken, onu saran kutunun boyutu sabit kaldığı için tuval taşıyor ve resmen **araç çubuğunun (kalem, silgi vs.) üstüne bir yorgan gibi örtülüyormuş.** O yüzden sen silgiye tıkladığını sanarken aslında görünmez tuvale tıklıyormuşsun! 
 
-            if(isHost) {
-                document.getElementById('btnContinueAfterElimination').style.display = 'block';
-                document.getElementById('btnContinueAfterElimination').textContent = reallyGameOver ? "GALERİYE GEÇ 🏁" : "KALANLARLA YENİ TUR 🔄";
-                document.getElementById('btnContinueAfterElimination').onclick = () => { playPop(); socket.emit('finishEliminationStage', myRoomCode); };
-            }
+Ayrıca sunucu tarafında çıkan oyuncuların "hayalet" olarak odada kalması ve oyunun "herkes gelsin" diyerek o hayaletleri sonsuza kadar beklemesi bug'ını da kökünden kazıdım. Artık lobiye veya ara ekrana dönüldüğünde bağlantısı kopanlar otomatik olarak odadan siliniyor. Temiz iş!
+
+İki dosyayı da baştan aşağı bu düzeltmelerle güncelledim. Eskilerini silip direkt bunları yapıştırabilirsin:
+
+### 1. Güncel `server.js` Dosyan
+
+```javascript
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+const fs = require('fs');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+app.use(express.static('public'));
+
+app.get('/api/profiles', (req, res) => {
+    let profilesPath = path.join(__dirname, 'public', 'profiles');
+    if (!fs.existsSync(profilesPath)) {
+        profilesPath = path.join(__dirname, 'profiles');
+    }
+
+    if (fs.existsSync(profilesPath)) {
+        const files = fs.readdirSync(profilesPath).filter(f => {
+            const ext = f.toLowerCase();
+            return ext.endsWith('.png') || ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.webp') || ext.endsWith('.gif');
         });
-
-        socket.on('resultsFinished', () => {
-            playSuccess(); isGalleryMode = true; document.getElementById('eliminationOverlay').style.display = 'none'; document.getElementById('wpResultContainer').style.display = 'flex'; document.getElementById('wpControlsArea').style.display = 'flex'; document.getElementById('wpVotingPanel').style.display = 'none';
-            document.getElementById('wpCurrentChainName').textContent = "Serbest Galeri Modu"; document.getElementById('wpStepBadge').textContent = "İstediğin kişiye tıkla!"; document.getElementById('wpStepBadge').style.color = "white";
-            document.getElementById('wpMessagesArea').innerHTML = `<div style="text-align:center; color:white; font-weight:800; margin-top:30px; font-size:20px;">Oyun bitti! 🏁<br><br>Soldaki listeden istediğin oyuncuya tıklayarak<br>zincirini dilediğin gibi inceleyebilirsin.</div>`;
-            updateWpSidebar(null); 
-            document.getElementById('wpHostControls').innerHTML = `<button class="btn btn-danger" style="margin:0;" onclick="playPop(); forceReturnToLobby(); socket.emit('returnToLobby', '${myRoomCode}');">LOBİYE DÖN</button>`;
-        });
-
-        socket.on('returnedToLobby', () => { forceReturnToLobby(); });
-        socket.on('backToLobby', () => { forceReturnToLobby(); });
-
-        window.viewChainWp = function(chainId) {
-            playPop(); updateWpSidebar(chainId); 
-            const chainData = allChainsData[chainId]; 
-            if (!chainData) return;
-
-            const chainSteps = Array.isArray(chainData) ? chainData : (chainData.steps || []);
-
-            const owner = allPlayersData.find(p => p.id === chainId)?.username || 'Bilinmeyen';
-            
-            document.getElementById('wpCurrentChainName').textContent = `${owner}'ın ${isCurrentGameMemesel ? 'Miimi' : 'Zinciri'}`;
-            document.getElementById('wpStepBadge').textContent = `Toplam ${chainSteps.length} Adım`; 
-            document.getElementById('wpStepBadge').style.color = "var(--btn-yellow)";
-            
-            const area = document.getElementById('wpMessagesArea'); 
-            area.innerHTML = ''; 
-            
-            chainSteps.forEach((step) => {
-                // GÜNCELLEME: Galeride eksik çıkan şablon düzeltildi.
-                let imgSrc = step.value || step.image;
-                let contentHtml = step.type === 'text' ? `<div class="text">${step.value}</div>` : `<img src="${imgSrc}">`;
-                area.innerHTML += `<div class="wp-msg"><div class="author">${step.author} ${step.actionText || 'yaptı:'}</div>${contentHtml}</div>`;
-            });
-            area.scrollTop = 0;
+        
+        if (files.length > 0) {
+            res.json(files);
+        } else {
+            res.json(['1.png']);
         }
-    </script>
-</body>
-</html>
+    } else {
+        res.json(['1.png']);
+    }
+});
+
+const rooms = {};
+
+function generateRoomCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
+}
+
+function updateLobby(roomCode) {
+    if (!rooms[roomCode]) return;
+    const room = rooms[roomCode];
+    if (room.status === 'intermission') {
+        io.to(roomCode).emit('updateIntermissionLobby', { players: room.players, hostId: room.hostId });
+    } else if (room.status === 'waiting') {
+        io.to(roomCode).emit('updateLobby', { players: room.players, hostId: room.hostId });
+    }
+}
+
+function getPublicRoomsList() {
+    return Object.keys(rooms).filter(code => rooms[code].isPublic && rooms[code].status === 'waiting').map(code => ({
+        code: code,
+        playerCount: rooms[code].players.filter(p => p.inLobby).length,
+        maxPlayers: 14,
+        hasPassword: rooms[code].password !== ''
+    }));
+}
+
+// Hayalet oyuncuları temizleme fonksiyonu
+function removeDisconnectedPlayers(room) {
+    room.players = room.players.filter(p => p.inLobby);
+}
+
+io.on('connection', (socket) => {
+
+    socket.on('getPublicRooms', () => {
+        socket.emit('publicRoomsList', getPublicRoomsList());
+    });
+
+    socket.on('joinRandom', (userData) => {
+        const publicRooms = Object.keys(rooms).filter(c => rooms[c].isPublic && rooms[c].status === 'waiting' && rooms[c].password === '');
+        if (publicRooms.length > 0) {
+            const targetRoom = publicRooms[Math.floor(Math.random() * publicRooms.length)];
+            joinRoomLogic(socket, targetRoom, userData, '');
+        } else {
+            createRoomLogic(socket, userData, true, '');
+        }
+    });
+
+    socket.on('createRoom', (data) => {
+        createRoomLogic(socket, data.userData, data.isPublic, data.password);
+    });
+
+    function createRoomLogic(socket, userData, isPublic, password) {
+        let roomCode;
+        do { roomCode = generateRoomCode(); } while (rooms[roomCode]);
+
+        rooms[roomCode] = {
+            code: roomCode,
+            hostId: socket.id,
+            isPublic: isPublic,
+            password: password || '',
+            status: 'waiting',
+            players: [],
+            settings: {
+                gameMode: 'yazciz',
+                startMode: 'text',
+                turns: 'auto',
+                timeMode: 'normal'
+            },
+            chains: {},
+            currentRound: 0,
+            totalRounds: 0,
+            readyCount: 0,
+            submissions: 0,
+            scores: {}
+        };
+
+        joinRoomLogic(socket, roomCode, userData, password);
+        io.emit('publicRoomsList', getPublicRoomsList());
+    }
+
+    socket.on('joinWithCode', (data) => {
+        joinRoomLogic(socket, data.roomCode.toUpperCase(), data.userData, data.password || '');
+    });
+
+    function joinRoomLogic(socket, roomCode, userData, password) {
+        const room = rooms[roomCode];
+        if (!room) return socket.emit('errorMsg', 'Böyle bir oda bulunamadı!');
+        if (room.status === 'playing' || room.status === 'results') return socket.emit('errorMsg', 'Bu odada şu an oyun oynanıyor!');
+        if (room.password !== '' && room.password !== password && room.hostId !== socket.id) return socket.emit('errorMsg', 'Hatalı şifre!');
+        
+        const existingPlayer = room.players.find(p => p.username === userData.username);
+        const activePlayersCount = room.players.filter(p => p.inLobby).length;
+        
+        if (!existingPlayer && activePlayersCount >= 14) {
+            return socket.emit('errorMsg', 'Bu oda tamamen dolu! (Max 14)');
+        }
+
+        if (existingPlayer) {
+            existingPlayer.id = socket.id;
+            existingPlayer.inLobby = true;
+        } else {
+            room.players.push({
+                id: socket.id,
+                username: userData.username,
+                avatar: userData.avatar,
+                inLobby: true,
+                isSpectator: false,
+                score: 0
+            });
+        }
+
+        socket.join(roomCode);
+        socket.roomId = roomCode;
+        
+        socket.emit('joinedRoom', { roomCode: roomCode, isHost: room.hostId === socket.id, status: room.status });
+        socket.emit('updateSettings', room.settings);
+        updateLobby(roomCode);
+        io.emit('publicRoomsList', getPublicRoomsList()); 
+    }
+
+    socket.on('changeSettings', (data) => {
+        const room = rooms[data.roomCode];
+        if (room && room.hostId === socket.id) {
+            room.settings = data.settings;
+            io.to(data.roomCode).emit('updateSettings', room.settings);
+        }
+    });
+
+    socket.on('sendMessage', (data) => {
+        if (rooms[data.roomCode]) {
+            io.to(data.roomCode).emit('receiveMessage', { sender: data.username, message: data.message, color: data.color });
+        }
+    });
+
+    socket.on('startGame', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id) {
+            
+            // HERKES LOBİDE Mİ KONTROLÜ
+            if (!room.players.every(p => p.inLobby)) {
+                return socket.emit('errorMsg', 'Herkes lobiye bağlanmadan oyunu başlatamazsın!');
+            }
+
+            // ANA LOBİDEN BAŞLIYORSAK HERKESİ DİRİLT VE SIFIRLA
+            if (room.status === 'waiting') {
+                room.players.forEach(p => {
+                    p.isSpectator = false;
+                    p.score = 0;
+                });
+            }
+
+            room.status = 'playing';
+            const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby);
+            
+            if (activePlayers.length < 2) {
+                room.players.forEach(p => p.isSpectator = false);
+            }
+
+            room.chains = {};
+            room.scores = {};
+            
+            const playingNow = room.players.filter(p => !p.isSpectator && p.inLobby);
+            playingNow.forEach(p => {
+                room.chains[p.id] = { owner: p.username, steps: [] };
+                if (room.scores[p.id] === undefined) room.scores[p.id] = 0;
+            });
+
+            if (room.settings.gameMode === 'memesel') {
+                room.totalRounds = 2;
+            } else {
+                room.totalRounds = room.settings.turns === 'auto' ? playingNow.length : parseInt(room.settings.turns);
+            }
+            
+            room.currentRound = 0;
+            io.to(roomCode).emit('startCountdown');
+        }
+    });
+
+    socket.on('requestPhase1', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id && room.currentRound === 0) {
+            room.currentRound = 1;
+            startRound(roomCode);
+        }
+    });
+
+    socket.on('toggleReady', (data) => {
+        const room = rooms[data.roomCode];
+        if (room && room.status === 'playing') {
+            room.readyCount += data.isReady ? 1 : -1;
+            const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby).length;
+            io.to(data.roomCode).emit('readyCount', { ready: room.readyCount, total: activePlayers });
+
+            if (room.readyCount >= activePlayers && activePlayers > 0) {
+                room.readyCount = 0;
+                io.to(data.roomCode).emit('forceEndRound');
+            }
+        }
+    });
+    
+    function handleSubmission(roomCode, playerId, targetChainId, stepData) {
+        const room = rooms[roomCode];
+        if (!room) return;
+        
+        let chainTarget = targetChainId || playerId;
+        if (room.chains[chainTarget]) {
+            room.chains[chainTarget].steps.push(stepData);
+        }
+        
+        room.submissions++;
+        const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby).length;
+        
+        if (room.submissions >= activePlayers) {
+            room.submissions = 0;
+            room.readyCount = 0;
+            room.currentRound++;
+            
+            if (room.currentRound > room.totalRounds) {
+                room.status = 'results';
+                io.to(roomCode).emit('gameFinished', { 
+                    chains: room.chains, 
+                    players: room.players, 
+                    gameMode: room.settings.gameMode 
+                });
+            } else {
+                startRound(roomCode);
+            }
+        }
+    }
+
+    socket.on('submitText', (data) => {
+        handleSubmission(data.roomCode, socket.id, data.targetChainId, {
+            type: 'text',
+            value: data.text,
+            author: data.username,
+            actionText: rooms[data.roomCode].currentRound === 1 ? 'yazdı:' : 'tahmin etti:'
+        });
+    });
+
+    socket.on('submitDrawing', (data) => {
+        handleSubmission(data.roomCode, socket.id, data.targetChainId, {
+            type: 'image',
+            value: data.image,
+            author: data.username,
+            actionText: 'çizdi:'
+        });
+    });
+
+    socket.on('submitMemeselTemplate', (data) => {
+        handleSubmission(data.roomCode, socket.id, socket.id, {
+            type: 'template',
+            value: data.image,
+            boxes: data.boxes,
+            author: 'Bilinmeyen' 
+        });
+    });
+
+    socket.on('submitMemeselFill', (data) => {
+        const uName = rooms[data.roomCode].players.find(p => p.id === socket.id).username;
+        handleSubmission(data.roomCode, socket.id, data.targetChainId, {
+            type: 'image',
+            value: data.finalImage,
+            author: uName,
+            actionText: 'miimi hazırladı:'
+        });
+    });
+
+    function startRound(roomCode) {
+        const room = rooms[roomCode];
+        if (!room) return;
+        
+        room.readyCount = 0;
+        room.submissions = 0;
+        const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby);
+        
+        io.to(roomCode).emit('readyCount', { ready: 0, total: activePlayers.length });
+
+        if (room.settings.gameMode === 'memesel') {
+            if (room.currentRound === 1) {
+                io.to(roomCode).emit('startMemeselDrawPhase', { settings: room.settings });
+            } else if (room.currentRound === 2) {
+                activePlayers.forEach((p, i) => {
+                    const targetPlayerId = activePlayers[(i + 1) % activePlayers.length].id;
+                    const chain = room.chains[targetPlayerId];
+                    const templateData = chain.steps[0];
+                    io.to(p.id).emit('startMemeselFillPhase', {
+                        targetChainId: targetPlayerId,
+                        templateImage: templateData.value || templateData.image, 
+                        boxes: templateData.boxes,
+                        settings: room.settings
+                    });
+                });
+            }
+        } else {
+            activePlayers.forEach((p, i) => {
+                const targetIdx = (i - (room.currentRound - 1) + activePlayers.length * 10) % activePlayers.length;
+                const targetPlayerId = activePlayers[targetIdx].id;
+                const chain = room.chains[targetPlayerId];
+
+                if (room.currentRound === 1) {
+                    if (room.settings.startMode === 'text') {
+                        io.to(p.id).emit('startWritePhase', { settings: room.settings });
+                    } else {
+                        io.to(p.id).emit('startFreeDrawPhase', { settings: room.settings });
+                    }
+                } else {
+                    const lastStep = chain.steps[chain.steps.length - 1];
+                    if (lastStep.type === 'text') {
+                        io.to(p.id).emit('startDrawPhase', { targetChainId: targetPlayerId, textToDraw: lastStep.value, settings: room.settings });
+                    } else {
+                        let imgSrc = lastStep.value || lastStep.image;
+                        io.to(p.id).emit('startGuessPhase', { targetChainId: targetPlayerId, imageToGuess: imgSrc, settings: room.settings });
+                    }
+                }
+            });
+        }
+    }
+    
+    socket.on('startResults', (data) => {
+        const room = rooms[data.roomCode];
+        if (room && room.hostId === socket.id) {
+            room.resultState = {
+                chainIds: Object.keys(room.chains).filter(id => {
+                    if(room.settings.gameMode === 'memesel') return room.chains[id].steps.length > 1;
+                    return true;
+                }),
+                currentChainIdx: 0,
+                currentStepIdx: 0,
+                settings: data.settings
+            };
+            showCurrentResultIntro(room);
+        }
+    });
+
+    function showCurrentResultIntro(room) {
+        if (!room.resultState || room.resultState.chainIds.length === 0) return io.to(room.code).emit('resultsFinished');
+        
+        const currentChainId = room.resultState.chainIds[room.resultState.currentChainIdx];
+        const chain = room.chains[currentChainId];
+        room.resultState.currentStepIdx = 0;
+        
+        io.to(room.code).emit('showResultIntro', { 
+            chainId: currentChainId, 
+            chainOwner: chain.owner,
+            settings: room.resultState.settings,
+            gameMode: room.settings.gameMode
+        });
+        
+        if (!room.resultState.settings.manualResults) {
+            setTimeout(() => { showNextStep(room); }, 3000);
+        }
+    }
+
+    function showNextStep(room) {
+        const currentChainId = room.resultState.chainIds[room.resultState.currentChainIdx];
+        const chain = room.chains[currentChainId];
+        
+        if (room.resultState.currentStepIdx < chain.steps.length) {
+            io.to(room.code).emit('showResultStep', {
+                stepIndex: room.resultState.currentStepIdx,
+                totalSteps: chain.steps.length,
+                step: chain.steps[room.resultState.currentStepIdx],
+                settings: room.resultState.settings,
+                gameMode: room.settings.gameMode
+            });
+            room.resultState.currentStepIdx++;
+            
+            if (!room.resultState.settings.manualResults) {
+                const waitTime = room.settings.gameMode === 'memesel' ? 6000 : 4000;
+                setTimeout(() => { showNextStep(room); }, waitTime);
+            }
+        } else {
+            const isLastChain = room.resultState.currentChainIdx === room.resultState.chainIds.length - 1;
+            io.to(room.code).emit('showEndOfChain', { isLastChain: isLastChain });
+        }
+    }
+
+    socket.on('nextResult', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id) showNextStep(room);
+    });
+
+    socket.on('nextChain', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id) {
+            room.resultState.currentChainIdx++;
+            if (room.resultState.currentChainIdx < room.resultState.chainIds.length) {
+                showCurrentResultIntro(room);
+            } else {
+                if (room.settings.gameMode === 'memesel') {
+                    io.to(roomCode).emit('resultsFinished');
+                } else {
+                    handleElimination(room);
+                }
+            }
+        }
+    });
+
+    socket.on('submitVote', (data) => {
+        const room = rooms[data.roomCode];
+        if (room && data.targetChainId) {
+            const targetChainId = data.targetChainId;
+            
+            if (room.settings.gameMode === 'memesel') {
+                // Memesel oylama gizli
+            } else {
+                const chain = room.chains[targetChainId];
+                if (chain && chain.steps.length > 0) {
+                    const authorName = chain.steps[chain.steps.length - 1].author;
+                    const targetPlayer = room.players.find(p => p.username === authorName);
+                    if (targetPlayer) room.scores[targetPlayer.id] = (room.scores[targetPlayer.id] || 0) + data.score;
+                }
+            }
+        }
+    });
+
+    function handleElimination(room) {
+        const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby);
+        if (activePlayers.length <= 1) {
+            io.to(room.code).emit('resultsFinished');
+            return;
+        }
+
+        let minScore = Infinity;
+        let maxScore = -Infinity;
+        activePlayers.forEach(p => {
+            const sc = room.scores[p.id] || 0;
+            if (sc < minScore) minScore = sc;
+            if (sc > maxScore) maxScore = sc;
+        });
+
+        const losers = activePlayers.filter(p => (room.scores[p.id] || 0) === minScore);
+        const winners = activePlayers.filter(p => (room.scores[p.id] || 0) === maxScore);
+        
+        let reallyGameOver = false;
+        if (activePlayers.length - losers.length <= 1) reallyGameOver = true;
+
+        io.to(room.code).emit('showEliminationResults', {
+            winnerName: winners.length > 0 ? winners.map(w => w.username).join(" & ") : "Kimse",
+            loserNames: losers.map(l => l.username),
+            isGameOver: reallyGameOver
+        });
+
+        losers.forEach(l => l.isSpectator = true); 
+    }
+
+    socket.on('finishEliminationStage', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id) {
+            // BEKLEME EKRANINA GEÇMEDEN ÖNCE HAYALETLERİ TEMİZLE
+            removeDisconnectedPlayers(room);
+            
+            const activePlayers = room.players.filter(p => !p.isSpectator);
+            if (activePlayers.length <= 1) {
+                io.to(roomCode).emit('resultsFinished');
+            } else {
+                room.status = 'intermission';
+                io.to(roomCode).emit('returnedToLobby');
+                updateLobby(roomCode);
+            }
+        }
+    });
+
+    socket.on('returnToLobby', (roomCode) => {
+        const room = rooms[roomCode];
+        if (room && room.hostId === socket.id) {
+            // ANA LOBİYE DÖNMEDEN ÖNCE HAYALETLERİ TEMİZLE
+            removeDisconnectedPlayers(room);
+            
+            room.status = 'waiting';
+            room.players.forEach(p => {
+                p.isSpectator = false;
+                p.score = 0;
+            });
+
+            io.to(roomCode).emit('backToLobby');
+            updateLobby(roomCode);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        if (socket.roomId && rooms[socket.roomId]) {
+            const room = rooms[socket.roomId];
+            const player = room.players.find(p => p.id === socket.id);
+            if (player) {
+                player.inLobby = false; 
+                
+                // EĞER LOBİDEYSE VEYA ARA EKRANDAYSA DİREKT SİL
+                if (room.status === 'waiting' || room.status === 'intermission') {
+                    removeDisconnectedPlayers(room);
+                }
+                
+                if (room.hostId === socket.id) {
+                    const activePlayer = room.players.find(p => p.inLobby);
+                    if (activePlayer) {
+                        room.hostId = activePlayer.id;
+                    }
+                }
+                
+                if (!room.players.some(p => p.inLobby)) {
+                    delete rooms[socket.roomId];
+                    io.emit('publicRoomsList', getPublicRoomsList());
+                } else {
+                    // Oyun içindeyse sıranın kilitlenmemesi için kontrol et
+                    if (room.status === 'playing') {
+                        const activePlayersCount = room.players.filter(p => !p.isSpectator && p.inLobby).length;
+                        if (room.readyCount >= activePlayersCount && activePlayersCount > 0) {
+                            room.readyCount = 0;
+                            io.to(socket.roomId).emit('forceEndRound');
+                        }
+                    }
+                    updateLobby(socket.roomId);
+                }
+            }
+        }
+    });
+
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Çizgeç Sunucusu Aktif! Port: ${PORT}`);
+});
