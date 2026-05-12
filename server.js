@@ -122,7 +122,6 @@ io.on('connection', (socket) => {
         const existingPlayer = room.players.find(p => p.username === userData.username);
         const activePlayersCount = room.players.filter(p => p.inLobby).length;
         
-        // Sadece yeni bağlanan biri için oda dolu mu kontrolü yap (düşenler sayılmasın)
         if (!existingPlayer && activePlayersCount >= 14) {
             return socket.emit('errorMsg', 'Bu oda tamamen dolu! (Max 14)');
         }
@@ -167,6 +166,20 @@ io.on('connection', (socket) => {
     socket.on('startGame', (roomCode) => {
         const room = rooms[roomCode];
         if (room && room.hostId === socket.id) {
+            
+            // KONTROL 1: Herkes lobiye dönmediyse başlatılamaz!
+            if (!room.players.every(p => p.inLobby)) {
+                return socket.emit('errorMsg', 'Herkes lobiye dönmeden oyunu başlatamazsın! Kırmızı 👀 ikonlu oyuncuları bekle.');
+            }
+
+            // KONTROL 2: Eğer oyun ANA LOBİDEN başlatılıyorsa elenenleri (izleyicileri) dirilt!
+            if (room.status === 'waiting') {
+                room.players.forEach(p => { 
+                    p.isSpectator = false; 
+                    p.score = 0; 
+                });
+            }
+
             room.status = 'playing';
             const activePlayers = room.players.filter(p => !p.isSpectator && p.inLobby);
             
@@ -180,7 +193,7 @@ io.on('connection', (socket) => {
             const playingNow = room.players.filter(p => !p.isSpectator && p.inLobby);
             playingNow.forEach(p => {
                 room.chains[p.id] = { owner: p.username, steps: [] };
-                room.scores[p.id] = 0;
+                if(room.scores[p.id] === undefined) room.scores[p.id] = 0;
             });
 
             if (room.settings.gameMode === 'memesel') {
@@ -476,22 +489,39 @@ io.on('connection', (socket) => {
         }
     });
 
+    // ANA LOBİYE (WAITING) DÖNÜŞ KONTROLÜ
     socket.on('returnToLobby', (roomCode) => {
         const room = rooms[roomCode];
         if (room && room.hostId === socket.id) {
-            room.status = 'intermission';
+            room.status = 'waiting'; // Oyun durumunu Ana Lobiye alıyoruz
+            
+            // Lobiye dönüldüğü için kimse izleyici kalmasın, puanlar sıfırlansın
+            room.players.forEach(p => {
+                p.isSpectator = false;
+                p.score = 0;
+            });
+
             io.to(roomCode).emit('backToLobby');
             updateLobby(roomCode);
         }
     });
 
+    // BAĞLANTI KOPMA (DISCONNECT) KONTROLÜ
     socket.on('disconnect', () => {
         if (socket.roomId && rooms[socket.roomId]) {
             const room = rooms[socket.roomId];
-            const player = room.players.find(p => p.id === socket.id);
-            if (player) {
-                player.inLobby = false; 
+            const pIndex = room.players.findIndex(p => p.id === socket.id);
+            
+            if (pIndex !== -1) {
+                if (room.status === 'waiting') {
+                    // Ana lobide oyun henüz başlamadıysa oyuncuyu TAMAMEN LİSTEDEN SİL
+                    room.players.splice(pIndex, 1);
+                } else {
+                    // Oyun içindeyse sırasını bozmamak için sadece "Lobi de Değil (Düşmüş)" olarak işaretle
+                    room.players[pIndex].inLobby = false; 
+                }
                 
+                // Korkan host çıkarsa yeni host ata
                 if (room.hostId === socket.id) {
                     const activePlayer = room.players.find(p => p.inLobby);
                     if (activePlayer) {
@@ -499,12 +529,13 @@ io.on('connection', (socket) => {
                     }
                 }
                 
-                if (!room.players.some(p => p.inLobby)) {
+                // Odada kimse kalmadıysa odayı komple patlat
+                if (room.players.filter(p => p.inLobby).length === 0) {
                     delete rooms[socket.roomId];
-                    io.emit('publicRoomsList', getPublicRoomsList());
                 } else {
                     updateLobby(socket.roomId);
                 }
+                io.emit('publicRoomsList', getPublicRoomsList());
             }
         }
     });
